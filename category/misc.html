@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="utf-8" />
+        <meta name="generator" content="Pelican" />
+        <title>Homework for BIOS-823-2021 - misc</title>
+        <link rel="stylesheet" href="/theme/css/main.css" />
+        <link href="/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Homework for BIOS-823-2021 Atom Feed" />
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <h1><a href="/">Homework for BIOS-823-2021</a></h1>
+                <nav><ul>
+                    <li><a href="/pages/about.html">About</a></li>
+                    <li class="active"><a href="/category/misc.html">misc</a></li>
+                </ul></nav>
+        </header><!-- /#banner -->
+
+            <aside id="featured" class="body">
+                <article>
+                    <h1 class="entry-title"><a href="/homework-1.html">Homework 1</a></h1>
+<footer class="post-info">
+        <abbr class="published" title="2021-09-03T00:00:00-04:00">
+                Published: Fri 03 September 2021
+        </abbr>
+
+        <address class="vcard author">
+                By                         <a class="url fn" href="/author/xige-huang.html">Xige Huang</a>
+        </address>
+<p>In <a href="/category/misc.html">misc</a>.</p>
+
+</footer><!-- /.post-info --><h1>Math is fun - Euler Project</h1>
+<h2>Problem 7 - 10001st prime</h2>
+<p><em>solved by 424633</em></p>
+<p><strong>By listing the first six prime numbers: 2, 3, 5, 7, 11, and 13, we can see that the 6th prime is 13.</strong>
+<strong>What is the 10 001st prime number?</strong></p>
+<p>My intuition to approach this problem is to check if each number is prime, and record the index of the prime numbers and finally return the 10001st prime; in practice, we only need to check if an odd number is prime because even numbers are not prime by definition. </p>
+<p>More specifically:
+If i is divisible by a divisor <code>div</code>, then it is not prime and the loop moves on to the next odd number i.
+if i is not divisible by any odd divisor <code>div</code>, then it is a prime and we add 1 to the index.</p>
+<p>Therefore the function can be defined as follows,</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">count_prime</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns the nth prime number&quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">2</span>
+    <span class="n">index</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="k">for</span> <span class="n">num</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">n</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">):</span>
+        <span class="n">div</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">while</span> <span class="n">div</span><span class="o">*</span><span class="n">div</span> <span class="o">&lt;</span> <span class="n">num</span><span class="p">:</span>
+            <span class="n">div</span> <span class="o">+=</span> <span class="mi">2</span>
+            <span class="k">if</span> <span class="n">num</span> <span class="o">%</span> <span class="n">div</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">break</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">index</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="n">index</span> <span class="o">==</span> <span class="n">n</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">num</span>           
+</code></pre></div>
+
+
+<p>Run <code>count_prime(10001)</code> and then we get <strong>104743</strong>.</p>
+<h2>Problem 39 - Integer right triangles</h2>
+<p><em>solved by 73731</em></p>
+<p><strong>If p is the perimeter of a right angle triangle with integral length sides, {a,b,c}, there are exactly three solutions for p = 120: {20,48,52}, {24,45,51}, {30,40,50}.</strong>
+<strong>For which value of p ≤ 1000, is the number of solutions maximised?</strong></p>
+<p>From a^2 + b^2 = c^2 and a+b+c=p, we can derive that b = (p^2-2pa)/(2p-2a). 
+Then we can search the triplets with given p, with a starting from 1.</p>
+<p>To place a range on a, if we assume a&lt;b, then 3a&lt;a+b+c=p. Therefore we can get a&lt;p/3.</p>
+<p>Then we can define the function to calculate the pairs of {a, b, c} given restraint p.]</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">get_sol</span><span class="p">(</span><span class="n">p</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Get the number of unique triplets of c^2 = a^2 + b^2 with given restraint a + b + c = p</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">n_sol</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">p</span><span class="o">//</span><span class="mi">3</span><span class="p">):</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="p">(</span><span class="n">p</span><span class="o">**</span><span class="mi">2</span><span class="o">-</span><span class="mi">2</span><span class="o">*</span><span class="n">p</span><span class="o">*</span><span class="n">a</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">p</span><span class="o">-</span><span class="mi">2</span><span class="o">*</span><span class="n">a</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">b</span><span class="p">)</span> <span class="o">==</span> <span class="n">b</span><span class="p">:</span>
+            <span class="n">n_sol</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="n">n_sol</span>
+</code></pre></div>
+
+
+<p>Use the function above, we can define the main function to find p for which gives max number of function in the range 1&lt;p&lt;1000.</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">find_max_sol</span><span class="p">(</span><span class="n">p</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Find p that a + b + c = p such that gives the maximum number of combination {a, b, c}</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">num_sol</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1001</span><span class="p">):</span>
+        <span class="n">num_sol</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">get_sol</span><span class="p">(</span><span class="n">p</span><span class="p">))</span>
+    <span class="n">max_at</span> <span class="o">=</span> <span class="n">num_sol</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">num_sol</span><span class="p">))</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="n">max_at</span>
+</code></pre></div>
+
+
+<p>Run the function <code>find_max_sol(1000)</code> and get <strong>840</strong>.</p>
+<h2>Problem 112 - bouncy numbers</h2>
+<p><em>solved by 24427</em></p>
+<p><strong>Working from left-to-right if no digit is exceeded by the digit to its left it is called an increasing number; for example, 134468.</strong>
+<strong>Similarly if no digit is exceeded by the digit to its right it is called a decreasing number; for example, 66420.</strong>
+<strong>We shall call a positive integer that is neither increasing nor decreasing a "bouncy" number; for example, 155349.</strong>
+<strong>Clearly there cannot be any bouncy numbers below one-hundred, but just over half of the numbers below one-thousand (525) are bouncy. In fact, the least number for which the proportion of bouncy numbers first reaches 50% is 538.</strong>
+<strong>Surprisingly, bouncy numbers become more and more common and by the time we reach 21780 the proportion of bouncy numbers is equal to 90%.</strong>
+<strong>Find the least number for which the proportion of bouncy numbers is exactly 99%.</strong></p>
+<p>Follow by the description in the problem, we may check if a number with <strong>d</strong> digits (d &lt;= 3) is increasing with a marker <code>is_increasing</code>, which records a <code>True</code> if the left digit is less than the right digits. Similarly we can have a marker <code>is_decreasing</code>.</p>
+<p>Starting from the left-most digit, if the number is increasing then the marker <code>is_increasing</code> should record <code>True</code> for d-1 times, and the marker <code>is_decreasing</code> should record <code>False</code> for d-1 times (for example, 3 times for each marker for 2578); they work similarly for decreasing numbers.</p>
+<p>However, if <code>is_increasing</code> records <code>False</code> for at least once within the <code>True</code>'s (for example, 2145), it means that somewhere in the number the left digit is larger than the right digit (therefore not increasing anymore). Therefore, if the results for <code>is_increasing</code> and <code>is_decreasing</code> are not all <code>True</code> or <code>False</code>, respectively, the number is bouncy.</p>
+<p>Follows the logic above, we first define the function to check if a given number is bouncy,</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">is_bouncy</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Check if a given integer n is bouncy</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">digits</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">n</span><span class="p">)]</span>
+    <span class="n">is_inc</span><span class="p">,</span> <span class="n">is_dec</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span>
+    <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">range</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">digits</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">digits</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">digits</span><span class="p">[</span><span class="n">idx</span><span class="o">+</span><span class="mi">1</span><span class="p">]):</span>
+            <span class="n">is_inc</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="p">(</span><span class="n">digits</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">digits</span><span class="p">[</span><span class="n">idx</span><span class="o">+</span><span class="mi">1</span><span class="p">]):</span>
+            <span class="n">is_dec</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">is_inc</span> <span class="ow">and</span> <span class="n">is_dec</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">return</span> <span class="kc">False</span>
+</code></pre></div>
+
+
+<p>and then use the function to define the function that calculate the percent of bouncy numbers less than a given number.</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">bouncy_perc</span><span class="p">(</span><span class="n">perc_lim</span><span class="p">,</span> <span class="n">upper_lim</span> <span class="o">=</span> <span class="mi">200_0000</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Compute the bouncy percentage of every number below the given upper limit,</span>
+<span class="sd">        and returns the number once the limit reaches the given p</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">n_bouncy</span> <span class="o">=</span> <span class="mi">0</span> 
+    <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="n">upper_lim</span><span class="p">):</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">is_bouncy</span><span class="p">(</span><span class="n">i</span><span class="p">)):</span>
+            <span class="n">n_bouncy</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">bouncy_perc</span> <span class="o">=</span> <span class="n">n_bouncy</span> <span class="o">/</span> <span class="n">i</span><span class="o">*</span><span class="mi">100</span>
+        <span class="k">if</span> <span class="n">bouncy_perc</span> <span class="o">==</span> <span class="n">perc_lim</span><span class="p">:</span>
+            <span class="k">break</span>
+    <span class="k">return</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+</code></pre></div>
+
+
+<p>Run <code>bouncy_perc(90)</code> and get <strong>21780</strong>.</p>                </article>
+            </aside><!-- /#featured -->
+        <section id="extras" class="body">
+                <div class="blogroll">
+                        <h2>links</h2>
+                        <ul>
+                            <li><a href="https://getpelican.com/">Pelican</a></li>
+                            <li><a href="https://www.python.org/">Python.org</a></li>
+                            <li><a href="https://palletsprojects.com/p/jinja/">Jinja2</a></li>
+                            <li><a href="#">You can modify those links in your config file</a></li>
+                        </ul>
+                </div><!-- /.blogroll -->
+                <div class="social">
+                        <h2>social</h2>
+                        <ul>
+                            <li><a href="/feeds/all.atom.xml" type="application/atom+xml" rel="alternate">atom feed</a></li>
+
+                            <li><a href="#">You can add links in your config file</a></li>
+                            <li><a href="#">Another social link</a></li>
+                        </ul>
+                </div><!-- /.social -->
+        </section><!-- /#extras -->
+
+        <footer id="contentinfo" class="body">
+                <address id="about" class="vcard body">
+                Proudly powered by <a href="https://getpelican.com/">Pelican</a>, which takes great advantage of <a href="https://www.python.org/">Python</a>.
+                </address><!-- /#about -->
+
+                <p>The theme is by <a href="https://www.smashingmagazine.com/2009/08/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
+        </footer><!-- /#contentinfo -->
+
+</body>
+</html>
