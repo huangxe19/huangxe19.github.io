@@ -1,3 +1,3 @@
 # Homework BIOS-823
 
-To see blog page, visit <huangxe19.github.io>
+To see details, visit [blog](https://huangxe19.github.io)
