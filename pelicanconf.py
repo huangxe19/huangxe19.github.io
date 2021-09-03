@@ -20,7 +20,7 @@ AUTHOR_FEED_RSS = None
 
 # Blogroll
 LINKS = (('Reference', 'https://opensource.com/article/19/5/run-your-blog-github-pages-python/'),
-         ('Homework', 'https://github.com/cliburn/bios-823-2021/blob/main/homework/assignments.md')
+         ('Homework', 'https://github.com/cliburn/bios-823-2021/blob/main/homework/assignments.md'))
 
 
 DEFAULT_PAGINATION = False
