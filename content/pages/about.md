@@ -9,4 +9,4 @@ Please see the posts for details.
 
 This is my cat she writes all the codes and posts in this blog.
 
-[my_cat]: {static}/images/IMG_3677.jpg
+[my_cat]: {static}/images/bing.png
