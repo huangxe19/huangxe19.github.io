@@ -19,10 +19,10 @@
 
             <aside id="featured" class="body">
                 <article>
-                    <h1 class="entry-title"><a href="/homework-1.html">Homework 1</a></h1>
+                    <h1 class="entry-title"><a href="/homework-2.html">Homework 2</a></h1>
 <footer class="post-info">
-        <abbr class="published" title="2021-09-03T00:00:00-04:00">
-                Published: Fri 03 September 2021
+        <abbr class="published" title="2021-09-17T00:00:00-04:00">
+                Published: Fri 17 September 2021
         </abbr>
 
         <address class="vcard author">
@@ -30,119 +30,127 @@
         </address>
 <p>In <a href="/category/misc.html">misc</a>.</p>
 
-</footer><!-- /.post-info --><h1>Math is fun - Euler Project</h1>
-<h2>Problem 7 - 10001st prime</h2>
-<p><em>solved by 424633</em></p>
-<p><strong>By listing the first six prime numbers: 2, 3, 5, 7, 11, and 13, we can see that the 6th prime is 13.</strong>
-<strong>What is the 10 001st prime number?</strong></p>
-<p>My intuition to approach this problem is to check if each number is prime, and record the index of the prime numbers and finally return the 10001st prime; in practice, we only need to check if an odd number is prime because even numbers are not prime by definition. </p>
-<p>More specifically:
-If i is divisible by a divisor <code>div</code>, then it is not prime and the loop moves on to the next odd number i.
-if i is not divisible by any odd divisor <code>div</code>, then it is a prime and we add 1 to the index.</p>
-<p>Therefore the function can be defined as follows,</p>
-<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">count_prime</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Returns the nth prime number&quot;&quot;&quot;</span>
-
-    <span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="k">return</span> <span class="mi">2</span>
-    <span class="n">index</span> <span class="o">=</span> <span class="mi">2</span>
-    <span class="k">for</span> <span class="n">num</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">n</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">):</span>
-        <span class="n">div</span> <span class="o">=</span> <span class="mi">1</span>
-        <span class="k">while</span> <span class="n">div</span><span class="o">*</span><span class="n">div</span> <span class="o">&lt;</span> <span class="n">num</span><span class="p">:</span>
-            <span class="n">div</span> <span class="o">+=</span> <span class="mi">2</span>
-            <span class="k">if</span> <span class="n">num</span> <span class="o">%</span> <span class="n">div</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="k">break</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">index</span> <span class="o">+=</span> <span class="mi">1</span>
-        <span class="k">if</span> <span class="n">index</span> <span class="o">==</span> <span class="n">n</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">num</span>           
+</footer><!-- /.post-info --><h1>Number theory and a Google recruitment puzzle</h1>
+<h2>The question:</h2>
+<p>Find the first 10-digit prime in the decimal expansion of 17π.</p>
+<p>First solve sub-problems (and write unit tests for each of the three functions):</p>
+<ul>
+<li>Write a function to generate an arbitrary large expansion of a mathematical expression like π. Hint: You can use the standard library decimal or the 3rd party library sympy to do this</li>
+<li>Write a function to check if a number is prime. Hint: See Sieve of Eratosthenes</li>
+<li>Write a function to generate sliding windows of a specified width from a long iterable (e.g. a string representation of a number</li>
+</ul>
+<p><strong>Outline of this post</strong>:</p>
+<ul>
+<li><a href="#section1">a function that generates an arbitrary large expansion of a mathematical expression</a></li>
+<li><a href="#section2">a function that check if a number is prime</a></li>
+<li><a href="#section3">a function that generates sliding windows of a specified width from a long iterable</a></li>
+<li><a href="#section4">main function</a></li>
+<li><a href="#section5">results</a></li>
+</ul>
+<h2>expand_expr<a name="section1"></a></h2>
+<p>First I seach on the documentations of <code>sympy</code>, and found that <code>N()</code> can be used to convert math expressions to floating-point approximation. Then I write the following function with <code>N()</code>.</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">sympy</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="k">def</span> <span class="nf">expand_expr</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">expr</span><span class="p">,</span> <span class="n">ndigit</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return up to the given number of digits after decimal points of an expression&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">N</span><span class="p">(</span><span class="n">n</span><span class="o">*</span><span class="n">expr</span><span class="p">,</span> <span class="n">ndigit</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
 </code></pre></div>
 
 
-<p>Run <code>count_prime(10001)</code> and then we get <strong>104743</strong>.</p>
-<h2>Problem 39 - Integer right triangles</h2>
-<p><em>solved by 73731</em></p>
-<p><strong>If p is the perimeter of a right angle triangle with integral length sides, {a,b,c}, there are exactly three solutions for p = 120: {20,48,52}, {24,45,51}, {30,40,50}.</strong>
-<strong>For which value of p ≤ 1000, is the number of solutions maximised?</strong></p>
-<p>From a^2 + b^2 = c^2 and a+b+c=p, we can derive that b = (p^2-2pa)/(2p-2a). 
-Then we can search the triplets with given p, with a starting from 1.</p>
-<p>To place a range on a, if we assume a&lt;b, then 3a&lt;a+b+c=p. Therefore we can get a&lt;p/3.</p>
-<p>Then we can define the function to calculate the pairs of {a, b, c} given restraint p.]</p>
-<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">get_sol</span><span class="p">(</span><span class="n">p</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Get the number of unique triplets of c^2 = a^2 + b^2 with given restraint a + b + c = p</span>
+<p>unit test for <code>expand_expr()</code> to check if the function gives valid result for different inputs</p>
+<p>running</p>
+<p>in the code chunk giving the result of failure:</p>
+<p>The test failed because <code>N(n*expr, ndigit)</code> actually prints the math expression <code>n*expr</code> with a total of n digits instead of n digits after the decimal point. Then I modified the function, and added error message for type error of input n, and added more randomly chosen test cases.</p>
+<p>The test cases check if the function <code>expand_expr</code> gives the correct result of the 4-digit expansion of pi, 1000-digit expansion of e, and 5-digit expansion of 3.3e, and also check if the <code>TypeError</code> can be raised under right conditions.</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">expand_expr</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">expr</span><span class="p">,</span> <span class="n">ndigit</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return up to the given number of digits after decimal points of an expression&quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Need to multiple a math expression by a float or an integer&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">N</span><span class="p">(</span><span class="n">n</span><span class="o">*</span><span class="n">expr</span><span class="p">,</span> <span class="n">ndigit</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+</code></pre></div>
+
+
+<h2>is_prime<a name="section2"></a></h2>
+<p>The most efficient function to check if a number is prime is as follows:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="k">def</span> <span class="nf">is_prime</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return True if a given number n is prime&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">if</span> <span class="n">n</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">n</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">for</span> <span class="n">div</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">n</span><span class="p">))</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">n</span> <span class="o">%</span> <span class="n">div</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">return</span> <span class="kc">True</span>
+</code></pre></div>
+
+
+<p>unit tests to check is <code>is_prime</code> gives correct result with several randomly chosen cases</p>
+<p>Running </p>
+<p>gives the result</p>
+<p>Then we can move on to the next function.</p>
+<h2>gen_deci_str<a name="section3"></a></h2>
+<p>We want to write a function that first convert all digits after the decimal point to a list, and then return a modified list with the given starting decimal place of the given length.</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">gen_deci_str</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">n_dec</span><span class="p">,</span> <span class="n">n_len</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Returns a list of string of a number n </span>
+<span class="sd">       starting from its n_dec&#39;th decimal place of length n_len</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">n_sol</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">p</span><span class="o">//</span><span class="mi">3</span><span class="p">):</span>
-        <span class="n">b</span> <span class="o">=</span> <span class="p">(</span><span class="n">p</span><span class="o">**</span><span class="mi">2</span><span class="o">-</span><span class="mi">2</span><span class="o">*</span><span class="n">p</span><span class="o">*</span><span class="n">a</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">p</span><span class="o">-</span><span class="mi">2</span><span class="o">*</span><span class="n">a</span><span class="p">)</span>
-        <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">b</span><span class="p">)</span> <span class="o">==</span> <span class="n">b</span><span class="p">:</span>
-            <span class="n">n_sol</span> <span class="o">+=</span> <span class="mi">1</span>
-    <span class="k">return</span> <span class="n">n_sol</span>
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">n_len</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">int</span> <span class="ow">or</span> <span class="nb">type</span><span class="p">(</span><span class="n">n_dec</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;n_len and n_dec need to be integers&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="nb">int</span><span class="p">(</span><span class="n">n</span><span class="p">))[</span><span class="n">n_dec</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span><span class="n">n_dec</span><span class="o">+</span><span class="n">n_len</span><span class="o">+</span><span class="mi">1</span><span class="p">]]</span>
 </code></pre></div>
 
 
-<p>Use the function above, we can define the main function to find p for which gives max number of function in the range 1&lt;p&lt;1000.</p>
-<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">find_max_sol</span><span class="p">(</span><span class="n">p</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Find p that a + b + c = p such that gives the maximum number of combination {a, b, c}</span>
+<p>unit tests
+to check if <code>gen_deci_str(3.1415926, 3, 4)</code> returns <code>['1', '5', '9', '2']</code> and if the function <code>gen_deci_str</code> can return the correct 10 digit starting from the 6th decimal place of 2e.</p>
+<p>give result which indicates there is nothing wrong with the function</p>
+<h2>prime_in_expr<a name="section4"></a></h2>
+<p>Finally we can write the function that gives the first n-digit prime in the given decimal expansion, using the three functions we have tested.</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">prime_in_expr</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">expr</span><span class="p">,</span> <span class="n">ndig</span><span class="p">,</span> <span class="n">threshold</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return the first prime of length ndig in an math expression n*expr</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">num_sol</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1001</span><span class="p">):</span>
-        <span class="n">num_sol</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">get_sol</span><span class="p">(</span><span class="n">p</span><span class="p">))</span>
-    <span class="n">max_at</span> <span class="o">=</span> <span class="n">num_sol</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">num_sol</span><span class="p">))</span> <span class="o">+</span> <span class="mi">1</span>
-    <span class="k">return</span> <span class="n">max_at</span>
+    <span class="n">exp_deci</span> <span class="o">=</span> <span class="n">expand_expr</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">expr</span><span class="p">,</span> <span class="n">threshold</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">threshold</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">num_list</span> <span class="o">=</span> <span class="n">gen_deci_str</span><span class="p">(</span><span class="n">exp_deci</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">ndig</span><span class="p">)</span>
+        <span class="n">num</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">num_list</span><span class="p">))</span>
+        <span class="k">if</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">num_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">%</span><span class="mi">2</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">is_prime</span><span class="p">(</span><span class="n">num</span><span class="p">)):</span>
+                <span class="k">return</span> <span class="n">num</span>
+        <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="n">threshold</span> <span class="o">-</span> <span class="n">ndig</span><span class="p">:</span>
+            <span class="k">return</span><span class="p">(</span><span class="s2">&quot;increase the digits of expansion&quot;</span><span class="p">)</span>
 </code></pre></div>
 
 
-<p>Run the function <code>find_max_sol(1000)</code> and get <strong>840</strong>.</p>
-<h2>Problem 112 - bouncy numbers</h2>
-<p><em>solved by 24427</em></p>
-<p><strong>Working from left-to-right if no digit is exceeded by the digit to its left it is called an increasing number; for example, 134468.</strong>
-<strong>Similarly if no digit is exceeded by the digit to its right it is called a decreasing number; for example, 66420.</strong>
-<strong>We shall call a positive integer that is neither increasing nor decreasing a "bouncy" number; for example, 155349.</strong>
-<strong>Clearly there cannot be any bouncy numbers below one-hundred, but just over half of the numbers below one-thousand (525) are bouncy. In fact, the least number for which the proportion of bouncy numbers first reaches 50% is 538.</strong>
-<strong>Surprisingly, bouncy numbers become more and more common and by the time we reach 21780 the proportion of bouncy numbers is equal to 90%.</strong>
-<strong>Find the least number for which the proportion of bouncy numbers is exactly 99%.</strong></p>
-<p>Follow by the description in the problem, we may check if a number with <strong>d</strong> digits (d &lt;= 3) is increasing with a marker <code>is_increasing</code>, which records a <code>True</code> if the left digit is less than the right digits. Similarly we can have a marker <code>is_decreasing</code>.</p>
-<p>Starting from the left-most digit, if the number is increasing then the marker <code>is_increasing</code> should record <code>True</code> for d-1 times, and the marker <code>is_decreasing</code> should record <code>False</code> for d-1 times (for example, 3 times for each marker for 2578); they work similarly for decreasing numbers.</p>
-<p>However, if <code>is_increasing</code> records <code>False</code> for at least once within the <code>True</code>'s (for example, 2145), it means that somewhere in the number the left digit is larger than the right digit (therefore not increasing anymore). Therefore, if the results for <code>is_increasing</code> and <code>is_decreasing</code> are not all <code>True</code> or <code>False</code>, respectively, the number is bouncy.</p>
-<p>Follows the logic above, we first define the function to check if a given number is bouncy,</p>
-<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">is_bouncy</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Check if a given integer n is bouncy</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="n">digits</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">n</span><span class="p">)]</span>
-    <span class="n">is_inc</span><span class="p">,</span> <span class="n">is_dec</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span>
-    <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">range</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">digits</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
-        <span class="k">if</span> <span class="p">(</span><span class="n">digits</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">digits</span><span class="p">[</span><span class="n">idx</span><span class="o">+</span><span class="mi">1</span><span class="p">]):</span>
-            <span class="n">is_inc</span> <span class="o">=</span> <span class="kc">True</span>
-        <span class="k">elif</span> <span class="p">(</span><span class="n">digits</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">digits</span><span class="p">[</span><span class="n">idx</span><span class="o">+</span><span class="mi">1</span><span class="p">]):</span>
-            <span class="n">is_dec</span> <span class="o">=</span> <span class="kc">True</span>
-        <span class="k">if</span> <span class="p">(</span><span class="n">is_inc</span> <span class="ow">and</span> <span class="n">is_dec</span><span class="p">):</span>
-            <span class="k">return</span> <span class="kc">True</span>
-    <span class="k">return</span> <span class="kc">False</span>
+<p>One thing to highlight here is that if an integer ends with an even number, then it is not prime. Therefore we can be more efficient in checking the digits in the expansion by passing the <code>is_prime</code> function only if the n-digit ends with odd number.</p>
+<p>We set the default threshold of expanding the given expression to 1000, that is if the first 1000 digit does not contain a n-digit prime, the function returns a message that ask you to increase the threshold.</p>
+<h2>Running prime_in_expr<a name="section5"></a></h2>
+<p>Given the first 5 digits in the decimal expansion of π are 14159, we can test the main function by running</p>
+<div class="highlight"><pre><span></span><code><span class="n">prime_in_expr</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">pi</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
 </code></pre></div>
 
 
-<p>and then use the function to define the function that calculate the percent of bouncy numbers less than a given number.</p>
-<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">bouncy_perc</span><span class="p">(</span><span class="n">perc_lim</span><span class="p">,</span> <span class="n">upper_lim</span> <span class="o">=</span> <span class="mi">200_0000</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Compute the bouncy percentage of every number below the given upper limit,</span>
-<span class="sd">        and returns the number once the limit reaches the given p</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="n">n_bouncy</span> <span class="o">=</span> <span class="mi">0</span> 
-    <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="n">upper_lim</span><span class="p">):</span>
-        <span class="k">if</span><span class="p">(</span><span class="n">is_bouncy</span><span class="p">(</span><span class="n">i</span><span class="p">)):</span>
-            <span class="n">n_bouncy</span> <span class="o">+=</span> <span class="mi">1</span>
-        <span class="n">bouncy_perc</span> <span class="o">=</span> <span class="n">n_bouncy</span> <span class="o">/</span> <span class="n">i</span><span class="o">*</span><span class="mi">100</span>
-        <span class="k">if</span> <span class="n">bouncy_perc</span> <span class="o">==</span> <span class="n">perc_lim</span><span class="p">:</span>
-            <span class="k">break</span>
-    <span class="k">return</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+<p>which gives the correct result.</p>
+<p>Furthermore, running </p>
+<div class="highlight"><pre><span></span><code><span class="n">prime_in_expr</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">E</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
 </code></pre></div>
 
 
-<p>Run <code>bouncy_perc(90)</code> and get <strong>21780</strong>.</p>                </article>
+<p>gives 7427466391, for which we know is the correct first 10-digit prime in the expansion e is 7427466391. One thing to note here is that we need to use <code>E</code> from <code>sympy</code> (which is the correct Euler's Number) instead of <code>math.e</code> or <code>numpy.exp(1)</code>.</p>
+<p>Finally we can run</p>
+<div class="highlight"><pre><span></span><code><span class="n">prime_in_expr</span><span class="p">(</span><span class="mi">17</span><span class="p">,</span> <span class="n">pi</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+</code></pre></div>
+
+
+<p>to solve the problem. The answer is 8649375157.</p>                </article>
             </aside><!-- /#featured -->
                 <section id="content" class="body">
                     <h1>Other articles</h1>
@@ -151,8 +159,8 @@ Then we can search the triplets with given p, with a starting from 1.</p>
 
             <li><article class="hentry">
                 <header>
-                    <h1><a href="/homework-2.html" rel="bookmark"
-                           title="Permalink to Homework 2">Homework 2</a></h1>
+                    <h1><a href="/homework-1.html" rel="bookmark"
+                           title="Permalink to Homework 1">Homework 1</a></h1>
                 </header>
 
                 <div class="entry-content">
@@ -166,9 +174,13 @@ Then we can search the triplets with given p, with a starting from 1.</p>
         </address>
 <p>In <a href="/category/misc.html">misc</a>.</p>
 
-</footer><!-- /.post-info -->                <h1>Number theory and a Google recruitment puzzle</h1>
-<p>test for second post</p>
-                <a class="readmore" href="/homework-2.html">read more</a>
+</footer><!-- /.post-info -->                <h1>Math is fun - Euler Project</h1>
+<h2>Problem 7 - 10001st prime</h2>
+<p><em>solved by 424633</em></p>
+<p><strong>By listing the first six prime numbers: 2, 3, 5, 7, 11, and 13, we can see that the 6th prime is 13.</strong>
+<strong>What is the 10 001st prime number?</strong></p>
+<p>My intuition to approach this problem is to …</p>
+                <a class="readmore" href="/homework-1.html">read more</a>
                 </div><!-- /.entry-content -->
             </article></li>
                 </ol><!-- /#posts-list -->
