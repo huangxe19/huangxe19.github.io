@@ -182,9 +182,10 @@ def prime_in_expr(n, expr, ndig, threshold = 1000):
     for i in range(1, threshold + 1):
         num_list = gen_deci_str(exp_deci, i, ndig)
         num = int(''.join(num_list))
-        if (int(num_list[-1])%2 != 0):
-            if (is_prime(num)):
-                return num
+        if num_list[0] != 0:
+            if (int(num_list[-1])%2 != 0):
+                if (is_prime(num)):
+                    return num
         i += 1
         
         if i == threshold - ndig:
@@ -195,6 +196,7 @@ def prime_in_expr(n, expr, ndig, threshold = 1000):
 
 
 One thing to highlight here is that if an integer ends with an even number, then it is not prime. Therefore we can be more efficient in checking the digits in the expansion by passing the `is_prime` function only if the n-digit ends with odd number.
+The line `if num_list[0] != 0` is used to ensure the result n-digit number does not start with 0
 
 We set the default threshold of expanding the given expression to 1000, that is if the first 1000 digit does not contain a n-digit prime, the function returns a message that ask you to increase the threshold.
 
