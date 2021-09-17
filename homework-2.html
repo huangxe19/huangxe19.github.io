@@ -187,9 +187,10 @@ to check if <code>gen_deci_str(3.1415926, 3, 4)</code> returns <code>['1', '5', 
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">threshold</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
         <span class="n">num_list</span> <span class="o">=</span> <span class="n">gen_deci_str</span><span class="p">(</span><span class="n">exp_deci</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">ndig</span><span class="p">)</span>
         <span class="n">num</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">num_list</span><span class="p">))</span>
-        <span class="k">if</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">num_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">%</span><span class="mi">2</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">):</span>
-            <span class="k">if</span> <span class="p">(</span><span class="n">is_prime</span><span class="p">(</span><span class="n">num</span><span class="p">)):</span>
-                <span class="k">return</span> <span class="n">num</span>
+        <span class="k">if</span> <span class="n">num_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">num_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="o">%</span><span class="mi">2</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">):</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">is_prime</span><span class="p">(</span><span class="n">num</span><span class="p">)):</span>
+                    <span class="k">return</span> <span class="n">num</span>
         <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
 
         <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="n">threshold</span> <span class="o">-</span> <span class="n">ndig</span><span class="p">:</span>
@@ -197,7 +198,8 @@ to check if <code>gen_deci_str(3.1415926, 3, 4)</code> returns <code>['1', '5', 
 </code></pre></div>
 
 
-<p>One thing to highlight here is that if an integer ends with an even number, then it is not prime. Therefore we can be more efficient in checking the digits in the expansion by passing the <code>is_prime</code> function only if the n-digit ends with odd number.</p>
+<p>One thing to highlight here is that if an integer ends with an even number, then it is not prime. Therefore we can be more efficient in checking the digits in the expansion by passing the <code>is_prime</code> function only if the n-digit ends with odd number.
+The line <code>if num_list[0] != 0</code> is used to ensure the result n-digit number does not start with 0</p>
 <p>We set the default threshold of expanding the given expression to 1000, that is if the first 1000 digit does not contain a n-digit prime, the function returns a message that ask you to increase the threshold.</p>
 <h2>Running prime_in_expr<a name="section5"></a></h2>
 <p>Given the first 5 digits in the decimal expansion of π are 14159, we can test the main function by running</p>
