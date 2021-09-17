@@ -202,16 +202,31 @@ We set the default threshold of expanding the given expression to 1000, that is 
 
 ## Running prime\_in\_expr<a name="section5"></a>
 Given the first 5 digits in the decimal expansion of π are 14159, we can test the main function by running
-```python
-prime_in_expr(1, pi, 5)
-```
-which gives the correct result.
 
-Furthermore, running 
 ```python
-prime_in_expr(1, E, 10)
+%%file test_main.py
+
+import unittest
+import math
+from sympy import *
+from prime_in_expr import prime_in_expr
+
+
+class TestMain(unittest.TestCase):
+    def test_main(self):
+        self.assertEqual(prime_in_expr(1, math.pi, 5), 14159)
+        self.assertEqual(prime_in_expr(1, E, 10), 7427466391)
+    
+if __name__ == '__main__':
+    unittest.main()
 ```
-gives 7427466391, for which we know is the correct first 10-digit prime in the expansion e is 7427466391. One thing to note here is that we need to use `E` from `sympy` (which is the correct Euler's Number) instead of `math.e` or `numpy.exp(1)`.
+
+and
+
+```python
+! python3 -m unittest test_main.py
+```
+
 
 Finally we can run
 ```python
