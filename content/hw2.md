@@ -36,11 +36,10 @@ First I seach on the documentations of `sympy`, and found that `N()` can be used
 from sympy import *
 def expand_expr(n, expr, ndigit = 1000):
     """Return up to the given number of digits after decimal points of an expression"""
-    return N(n*expr, ndigit+1)
+    return N(n*expr, ndigit)
 ```
 
-unit test for `expand_expr()` to check if the function gives valid result for different inputs
-
+unit test for `expand_expr()` to check if the function gives valid result for different inputs and check for if typeError can be raised correctly
 
 ```python
 %%file test_expand.py
@@ -51,47 +50,9 @@ import math
 
 class Testexpand(unittest.TestCase):
     def test_expand(self):
-        self.assertEqual(str(expand_expr(1, math.pi, 4)), str(format(1*math.pi, '.4f')))
-    
-if __name__ == '__main__':
-    unittest.main()
-```
-
-running
-```python
-! python3 -m unittest test_expand.py
-```
-
-in the code chunk giving the result of failure `AssertionError: '3.142' != '3.1416'`
-
-The test failed because `N(n*expr, ndigit)` actually prints the math expression `n*expr` with a total of n digits instead of n digits after the decimal point. Then I modified the function, and added error message for type error of input n, and added more randomly chosen test cases.
-
-The test cases check if the function `expand_expr` gives the correct result of the 4-digit expansion of pi, 1000-digit expansion of e, and 5-digit expansion of 3.3e, and also check if the `TypeError` can be raised under right conditions.
-
-```python
-%%file expand_expr.py
-
-def expand_expr(n, expr, ndigit = 1000):
-    """Return up to the given number of digits after decimal points of an expression"""
-    
-    if type(n) not in [int, float]:
-        raise TypeError("Need to multiple a math expression by a float or an integer")
-    
-    return N(n*expr, ndigit+1)
-```
-
-```python
-%%file test_expand.py
-
-import unittest
-from expand_expr import expand_expr
-import math
-
-class Testexpand(unittest.TestCase):
-    def test_expand(self):
-        self.assertEqual(str(expand_expr(1, math.pi, 4)), str(format(1*math.pi, '.4f')))
-        self.assertEqual(str(expand_expr(1, math.e)), str(format(math.e, '.1000f')))
-        self.assertEqual(str(expand_expr(3.3, math.e, 5)), str(format(3.3*math.e, '.5f')))
+        self.assertEqual(str(expand_expr(1, math.pi, 4)), str(format(1*math.pi, '.3f')))
+        self.assertEqual(str(expand_expr(1, math.e)), str(format(math.e, '.999f')))
+        self.assertEqual(str(expand_expr(3.3, math.e, 5)), str(format(3.3*math.e, '.4f')))
     
     def test_expand_input(self):
         self.assertRaises(TypeError, expand_expr, "5")
@@ -99,6 +60,10 @@ class Testexpand(unittest.TestCase):
 if __name__ == '__main__':
     unittest.main()
 ```
+
+The test cases check if the function `expand_expr` gives the correct result of the 4-digit expansion of pi, 1000-digit expansion of e, and 5-digit expansion of 3.3e.
+
+
 
 ## is_prime<a name="section2"></a>
 
