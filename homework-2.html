@@ -203,17 +203,29 @@ The line <code>if num_list[0] != 0</code> is used to ensure the result n-digit n
 <p>We set the default threshold of expanding the given expression to 1000, that is if the first 1000 digit does not contain a n-digit prime, the function returns a message that ask you to increase the threshold.</p>
 <h2>Running prime_in_expr<a name="section5"></a></h2>
 <p>Given the first 5 digits in the decimal expansion of π are 14159, we can test the main function by running</p>
-<div class="highlight"><pre><span></span><code><span class="n">prime_in_expr</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">pi</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="o">%%</span><span class="n">file</span> <span class="n">test_main</span><span class="o">.</span><span class="n">py</span>
+
+<span class="kn">import</span> <span class="nn">unittest</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">from</span> <span class="nn">sympy</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">prime_in_expr</span> <span class="kn">import</span> <span class="n">prime_in_expr</span>
+
+
+<span class="k">class</span> <span class="nc">TestMain</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">test_main</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">prime_in_expr</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="mi">14159</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="n">prime_in_expr</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">E</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span> <span class="mi">7427466391</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">unittest</span><span class="o">.</span><span class="n">main</span><span class="p">()</span>
 </code></pre></div>
 
 
-<p>which gives the correct result.</p>
-<p>Furthermore, running </p>
-<div class="highlight"><pre><span></span><code><span class="n">prime_in_expr</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">E</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+<p>and</p>
+<div class="highlight"><pre><span></span><code><span class="err">!</span> <span class="n">python3</span> <span class="o">-</span><span class="n">m</span> <span class="n">unittest</span> <span class="n">test_main</span><span class="o">.</span><span class="n">py</span>
 </code></pre></div>
 
 
-<p>gives 7427466391, for which we know is the correct first 10-digit prime in the expansion e is 7427466391. One thing to note here is that we need to use <code>E</code> from <code>sympy</code> (which is the correct Euler's Number) instead of <code>math.e</code> or <code>numpy.exp(1)</code>.</p>
 <p>Finally we can run</p>
 <div class="highlight"><pre><span></span><code><span class="n">prime_in_expr</span><span class="p">(</span><span class="mi">17</span><span class="p">,</span> <span class="n">pi</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
 </code></pre></div>
