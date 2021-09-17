@@ -60,11 +60,11 @@
 <span class="kn">from</span> <span class="nn">sympy</span> <span class="kn">import</span> <span class="o">*</span>
 <span class="k">def</span> <span class="nf">expand_expr</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">expr</span><span class="p">,</span> <span class="n">ndigit</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Return up to the given number of digits after decimal points of an expression&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">N</span><span class="p">(</span><span class="n">n</span><span class="o">*</span><span class="n">expr</span><span class="p">,</span> <span class="n">ndigit</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">N</span><span class="p">(</span><span class="n">n</span><span class="o">*</span><span class="n">expr</span><span class="p">,</span> <span class="n">ndigit</span><span class="p">)</span>
 </code></pre></div>
 
 
-<p>unit test for <code>expand_expr()</code> to check if the function gives valid result for different inputs</p>
+<p>unit test for <code>expand_expr()</code> to check if the function gives valid result for different inputs and check for if typeError can be raised correctly</p>
 <div class="highlight"><pre><span></span><code><span class="o">%%</span><span class="n">file</span> <span class="n">test_expand</span><span class="o">.</span><span class="n">py</span>
 
 <span class="kn">import</span> <span class="nn">unittest</span>
@@ -73,44 +73,9 @@
 
 <span class="k">class</span> <span class="nc">Testexpand</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">test_expand</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">expand_expr</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="mi">4</span><span class="p">)),</span> <span class="nb">str</span><span class="p">(</span><span class="nb">format</span><span class="p">(</span><span class="mi">1</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="s1">&#39;.4f&#39;</span><span class="p">)))</span>
-
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
-    <span class="n">unittest</span><span class="o">.</span><span class="n">main</span><span class="p">()</span>
-</code></pre></div>
-
-
-<p>running</p>
-<div class="highlight"><pre><span></span><code><span class="err">!</span> <span class="n">python3</span> <span class="o">-</span><span class="n">m</span> <span class="n">unittest</span> <span class="n">test_expand</span><span class="o">.</span><span class="n">py</span>
-</code></pre></div>
-
-
-<p>in the code chunk giving the result of failure <code>AssertionError: '3.142' != '3.1416'</code></p>
-<p>The test failed because <code>N(n*expr, ndigit)</code> actually prints the math expression <code>n*expr</code> with a total of n digits instead of n digits after the decimal point. Then I modified the function, and added error message for type error of input n, and added more randomly chosen test cases.</p>
-<p>The test cases check if the function <code>expand_expr</code> gives the correct result of the 4-digit expansion of pi, 1000-digit expansion of e, and 5-digit expansion of 3.3e, and also check if the <code>TypeError</code> can be raised under right conditions.</p>
-<div class="highlight"><pre><span></span><code><span class="o">%%</span><span class="n">file</span> <span class="n">expand_expr</span><span class="o">.</span><span class="n">py</span>
-
-<span class="k">def</span> <span class="nf">expand_expr</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">expr</span><span class="p">,</span> <span class="n">ndigit</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Return up to the given number of digits after decimal points of an expression&quot;&quot;&quot;</span>
-
-    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
-        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Need to multiple a math expression by a float or an integer&quot;</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">N</span><span class="p">(</span><span class="n">n</span><span class="o">*</span><span class="n">expr</span><span class="p">,</span> <span class="n">ndigit</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
-</code></pre></div>
-
-
-<div class="highlight"><pre><span></span><code><span class="o">%%</span><span class="n">file</span> <span class="n">test_expand</span><span class="o">.</span><span class="n">py</span>
-
-<span class="kn">import</span> <span class="nn">unittest</span>
-<span class="kn">from</span> <span class="nn">expand_expr</span> <span class="kn">import</span> <span class="n">expand_expr</span>
-<span class="kn">import</span> <span class="nn">math</span>
-
-<span class="k">class</span> <span class="nc">Testexpand</span><span class="p">(</span><span class="n">unittest</span><span class="o">.</span><span class="n">TestCase</span><span class="p">):</span>
-    <span class="k">def</span> <span class="nf">test_expand</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">expand_expr</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="mi">4</span><span class="p">)),</span> <span class="nb">str</span><span class="p">(</span><span class="nb">format</span><span class="p">(</span><span class="mi">1</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="s1">&#39;.4f&#39;</span><span class="p">)))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">expand_expr</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">math</span><span class="o">.</span><span class="n">e</span><span class="p">)),</span> <span class="nb">str</span><span class="p">(</span><span class="nb">format</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">e</span><span class="p">,</span> <span class="s1">&#39;.1000f&#39;</span><span class="p">)))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">expand_expr</span><span class="p">(</span><span class="mf">3.3</span><span class="p">,</span> <span class="n">math</span><span class="o">.</span><span class="n">e</span><span class="p">,</span> <span class="mi">5</span><span class="p">)),</span> <span class="nb">str</span><span class="p">(</span><span class="nb">format</span><span class="p">(</span><span class="mf">3.3</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">e</span><span class="p">,</span> <span class="s1">&#39;.5f&#39;</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">expand_expr</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="mi">4</span><span class="p">)),</span> <span class="nb">str</span><span class="p">(</span><span class="nb">format</span><span class="p">(</span><span class="mi">1</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="s1">&#39;.3f&#39;</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">expand_expr</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">math</span><span class="o">.</span><span class="n">e</span><span class="p">)),</span> <span class="nb">str</span><span class="p">(</span><span class="nb">format</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">e</span><span class="p">,</span> <span class="s1">&#39;.999f&#39;</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assertEqual</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">expand_expr</span><span class="p">(</span><span class="mf">3.3</span><span class="p">,</span> <span class="n">math</span><span class="o">.</span><span class="n">e</span><span class="p">,</span> <span class="mi">5</span><span class="p">)),</span> <span class="nb">str</span><span class="p">(</span><span class="nb">format</span><span class="p">(</span><span class="mf">3.3</span><span class="o">*</span><span class="n">math</span><span class="o">.</span><span class="n">e</span><span class="p">,</span> <span class="s1">&#39;.4f&#39;</span><span class="p">)))</span>
 
     <span class="k">def</span> <span class="nf">test_expand_input</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">assertRaises</span><span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="n">expand_expr</span><span class="p">,</span> <span class="s2">&quot;5&quot;</span><span class="p">)</span>
@@ -120,6 +85,7 @@
 </code></pre></div>
 
 
+<p>The test cases check if the function <code>expand_expr</code> gives the correct result of the 4-digit expansion of pi, 1000-digit expansion of e, and 5-digit expansion of 3.3e.</p>
 <h2>is_prime<a name="section2"></a></h2>
 <p>The most efficient function to check if a number is prime is as follows:</p>
 <div class="highlight"><pre><span></span><code><span class="o">%%</span><span class="n">file</span> <span class="n">is_prime</span><span class="o">.</span><span class="n">py</span>
