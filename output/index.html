@@ -19,10 +19,10 @@
 
             <aside id="featured" class="body">
                 <article>
-                    <h1 class="entry-title"><a href="/homework-1.html">Homework 1</a></h1>
+                    <h1 class="entry-title"><a href="/homework-3.html">Homework 3</a></h1>
 <footer class="post-info">
-        <abbr class="published" title="2021-09-03T00:00:00-04:00">
-                Published: Fri 03 September 2021
+        <abbr class="published" title="2021-09-30T00:00:00-04:00">
+                Published: Thu 30 September 2021
         </abbr>
 
         <address class="vcard author">
@@ -30,119 +30,207 @@
         </address>
 <p>In <a href="/category/misc.html">misc</a>.</p>
 
-</footer><!-- /.post-info --><h1>Math is fun - Euler Project</h1>
-<h2>Problem 7 - 10001st prime</h2>
-<p><em>solved by 424633</em></p>
-<p><strong>By listing the first six prime numbers: 2, 3, 5, 7, 11, and 13, we can see that the 6th prime is 13.</strong>
-<strong>What is the 10 001st prime number?</strong></p>
-<p>My intuition to approach this problem is to check if each number is prime, and record the index of the prime numbers and finally return the 10001st prime; in practice, we only need to check if an odd number is prime because even numbers are not prime by definition. </p>
-<p>More specifically:
-If i is divisible by a divisor <code>div</code>, then it is not prime and the loop moves on to the next odd number i.
-if i is not divisible by any odd divisor <code>div</code>, then it is a prime and we add 1 to the index.</p>
-<p>Therefore the function can be defined as follows,</p>
-<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">count_prime</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Returns the nth prime number&quot;&quot;&quot;</span>
+</footer><!-- /.post-info --><h1>Creating effective visualizations using best practices</h1>
+<p>Using <a href="https://github.com/cliburn/bios-823-2021/blob/main/homework/assignments.md">https://github.com/cliburn/bios-823-2021/blob/main/homework/assignments.md</a></p>
+<p><strong>Outline of this post</strong>:</p>
+<ul>
+<li><a href="#section1">Interactive scatter plot using Plotly</a></li>
+<li><a href="#section2">Interactive dot plot using Plotly</a></li>
+<li><a href="#section3">Boxplot using Seaborn</a></li>
+</ul>
+<h2>Scatter Plot<a name="section1"></a></h2>
+<p>Because the data is time series data, therefore it's always useful to take a first look at the trend throughout the years. </p>
+<p>I use <code>Plotly</code> to plot two scatter lines, which allows user to select the two countries they want to compare.</p>
+<p>The first reason I chose plotly is that plotly allows intreactive filtering of the data by widgets. Moreover, the 'compare data on hover' feature is especially useful to see the exact numbers of the plots by moving through the lines.</p>
+<p><a href="/images/scatter.png">scatter_plot</a></p>
+<p>First read the data</p>
+<div class="highlight"><pre><span></span><code><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;malaria_deaths_age.txt&#39;</span><span class="p">)</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span> <span class="o">=</span> <span class="s1">&#39;Unnamed: 0&#39;</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="k">return</span> <span class="mi">2</span>
-    <span class="n">index</span> <span class="o">=</span> <span class="mi">2</span>
-    <span class="k">for</span> <span class="n">num</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">n</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">):</span>
-        <span class="n">div</span> <span class="o">=</span> <span class="mi">1</span>
-        <span class="k">while</span> <span class="n">div</span><span class="o">*</span><span class="n">div</span> <span class="o">&lt;</span> <span class="n">num</span><span class="p">:</span>
-            <span class="n">div</span> <span class="o">+=</span> <span class="mi">2</span>
-            <span class="k">if</span> <span class="n">num</span> <span class="o">%</span> <span class="n">div</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="k">break</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">index</span> <span class="o">+=</span> <span class="mi">1</span>
-        <span class="k">if</span> <span class="n">index</span> <span class="o">==</span> <span class="n">n</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">num</span>           
+<span class="c1"># aggregate all age groups into &#39;All age&#39;</span>
+<span class="n">age_agg</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s1">&#39;entity&#39;</span><span class="p">,</span> <span class="s1">&#39;year&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">agg</span><span class="p">(</span><span class="s1">&#39;sum&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+<span class="n">age_agg</span><span class="p">[</span><span class="s1">&#39;age_group&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;All age&#39;</span>
+<span class="n">df1</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df</span><span class="p">,</span> <span class="n">age_agg</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 </code></pre></div>
 
 
-<p>Run <code>count_prime(10001)</code> and then we get <strong>104743</strong>.</p>
-<h2>Problem 39 - Integer right triangles</h2>
-<p><em>solved by 73731</em></p>
-<p><strong>If p is the perimeter of a right angle triangle with integral length sides, {a,b,c}, there are exactly three solutions for p = 120: {20,48,52}, {24,45,51}, {30,40,50}.</strong>
-<strong>For which value of p ≤ 1000, is the number of solutions maximised?</strong></p>
-<p>From a^2 + b^2 = c^2 and a+b+c=p, we can derive that b = (p^2-2pa)/(2p-2a). 
-Then we can search the triplets with given p, with a starting from 1.</p>
-<p>To place a range on a, if we assume a&lt;b, then 3a&lt;a+b+c=p. Therefore we can get a&lt;p/3.</p>
-<p>Then we can define the function to calculate the pairs of {a, b, c} given restraint p.]</p>
-<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">get_sol</span><span class="p">(</span><span class="n">p</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Get the number of unique triplets of c^2 = a^2 + b^2 with given restraint a + b + c = p</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<p>The code to define the widgets:</p>
+<div class="highlight"><pre><span></span><code><span class="n">age</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span class="n">Dropdown</span><span class="p">(</span>
+    <span class="n">options</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">df1</span><span class="p">[</span><span class="s1">&#39;age_group&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()),</span>
+    <span class="n">value</span><span class="o">=</span><span class="s1">&#39;All age&#39;</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="s1">&#39;Age Group:&#39;</span><span class="p">,</span>
+<span class="p">)</span>
 
-    <span class="n">n_sol</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">p</span><span class="o">//</span><span class="mi">3</span><span class="p">):</span>
-        <span class="n">b</span> <span class="o">=</span> <span class="p">(</span><span class="n">p</span><span class="o">**</span><span class="mi">2</span><span class="o">-</span><span class="mi">2</span><span class="o">*</span><span class="n">p</span><span class="o">*</span><span class="n">a</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">p</span><span class="o">-</span><span class="mi">2</span><span class="o">*</span><span class="n">a</span><span class="p">)</span>
-        <span class="k">if</span> <span class="nb">int</span><span class="p">(</span><span class="n">b</span><span class="p">)</span> <span class="o">==</span> <span class="n">b</span><span class="p">:</span>
-            <span class="n">n_sol</span> <span class="o">+=</span> <span class="mi">1</span>
-    <span class="k">return</span> <span class="n">n_sol</span>
+<span class="n">entity1</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span class="n">Dropdown</span><span class="p">(</span>
+    <span class="n">options</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">df1</span><span class="p">[</span><span class="s1">&#39;entity&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()),</span>
+    <span class="n">value</span><span class="o">=</span><span class="s1">&#39;Afghanistan&#39;</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="s1">&#39;Country1:&#39;</span><span class="p">,</span>
+    <span class="n">continuous_update</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+
+<span class="n">entity2</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span class="n">Dropdown</span><span class="p">(</span>
+    <span class="n">options</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">df1</span><span class="p">[</span><span class="s1">&#39;entity&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()),</span>
+    <span class="n">value</span><span class="o">=</span><span class="s1">&#39;Zimbabwe&#39;</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="s1">&#39;Country2:&#39;</span><span class="p">,</span>
+    <span class="n">continuous_update</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+
+<span class="n">container</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span class="n">HBox</span><span class="p">([</span><span class="n">entity1</span><span class="p">,</span> <span class="n">entity2</span><span class="p">])</span>
 </code></pre></div>
 
 
-<p>Use the function above, we can define the main function to find p for which gives max number of function in the range 1&lt;p&lt;1000.</p>
-<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">find_max_sol</span><span class="p">(</span><span class="n">p</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Find p that a + b + c = p such that gives the maximum number of combination {a, b, c}</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="n">num_sol</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1001</span><span class="p">):</span>
-        <span class="n">num_sol</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">get_sol</span><span class="p">(</span><span class="n">p</span><span class="p">))</span>
-    <span class="n">max_at</span> <span class="o">=</span> <span class="n">num_sol</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">num_sol</span><span class="p">))</span> <span class="o">+</span> <span class="mi">1</span>
-    <span class="k">return</span> <span class="n">max_at</span>
+<p>Then create the default plot:</p>
+<div class="highlight"><pre><span></span><code><span class="n">trace1</span> <span class="o">=</span> <span class="n">go</span><span class="o">.</span><span class="n">Scatter</span><span class="p">(</span><span class="n">x</span><span class="o">=</span> <span class="n">df1</span><span class="p">[(</span><span class="n">df1</span><span class="p">[</span><span class="s1">&#39;entity&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">entity1</span><span class="o">.</span><span class="n">value</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">df1</span><span class="p">[</span><span class="s1">&#39;age_group&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">age</span><span class="o">.</span><span class="n">value</span><span class="p">)][</span><span class="s1">&#39;year&#39;</span><span class="p">],</span> 
+                    <span class="n">y</span> <span class="o">=</span> <span class="n">df1</span><span class="p">[(</span><span class="n">df1</span><span class="p">[</span><span class="s1">&#39;entity&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">entity1</span><span class="o">.</span><span class="n">value</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">df1</span><span class="p">[</span><span class="s1">&#39;age_group&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">age</span><span class="o">.</span><span class="n">value</span><span class="p">)][</span><span class="s1">&#39;deaths&#39;</span><span class="p">],</span> 
+                    <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;Country1&#39;</span><span class="p">)</span>
+<span class="n">trace2</span> <span class="o">=</span> <span class="n">go</span><span class="o">.</span><span class="n">Scatter</span><span class="p">(</span><span class="n">x</span><span class="o">=</span> <span class="n">df1</span><span class="p">[(</span><span class="n">df1</span><span class="p">[</span><span class="s1">&#39;entity&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">entity2</span><span class="o">.</span><span class="n">value</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">df1</span><span class="p">[</span><span class="s1">&#39;age_group&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">age</span><span class="o">.</span><span class="n">value</span><span class="p">)][</span><span class="s1">&#39;year&#39;</span><span class="p">],</span> 
+                    <span class="n">y</span> <span class="o">=</span> <span class="n">df1</span><span class="p">[(</span><span class="n">df1</span><span class="p">[</span><span class="s1">&#39;entity&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">entity2</span><span class="o">.</span><span class="n">value</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">df1</span><span class="p">[</span><span class="s1">&#39;age_group&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">age</span><span class="o">.</span><span class="n">value</span><span class="p">)][</span><span class="s1">&#39;deaths&#39;</span><span class="p">],</span> 
+                    <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;Country2&#39;</span><span class="p">)</span>
+<span class="n">g</span> <span class="o">=</span> <span class="n">go</span><span class="o">.</span><span class="n">FigureWidget</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="p">[</span><span class="n">trace1</span><span class="p">,</span> <span class="n">trace2</span><span class="p">],</span>
+                    <span class="n">layout</span><span class="o">=</span><span class="n">go</span><span class="o">.</span><span class="n">Layout</span><span class="p">(</span>
+                        <span class="n">title</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                            <span class="n">text</span><span class="o">=</span><span class="s1">&#39; Malaria deaths per 100,000 people across time&#39;</span>
+                        <span class="p">),</span>
+                        <span class="n">xaxis_range</span><span class="o">=</span><span class="p">[</span><span class="nb">min</span><span class="p">(</span><span class="n">df1</span><span class="p">[</span><span class="s1">&#39;year&#39;</span><span class="p">]),</span> <span class="nb">max</span><span class="p">(</span><span class="n">df1</span><span class="p">[</span><span class="s1">&#39;year&#39;</span><span class="p">])],</span>
+                        <span class="n">template</span><span class="o">=</span> <span class="s1">&#39;seaborn&#39;</span>
+                    <span class="p">))</span>
 </code></pre></div>
 
 
-<p>Run the function <code>find_max_sol(1000)</code> and get <strong>840</strong>.</p>
-<h2>Problem 112 - bouncy numbers</h2>
-<p><em>solved by 24427</em></p>
-<p><strong>Working from left-to-right if no digit is exceeded by the digit to its left it is called an increasing number; for example, 134468.</strong>
-<strong>Similarly if no digit is exceeded by the digit to its right it is called a decreasing number; for example, 66420.</strong>
-<strong>We shall call a positive integer that is neither increasing nor decreasing a "bouncy" number; for example, 155349.</strong>
-<strong>Clearly there cannot be any bouncy numbers below one-hundred, but just over half of the numbers below one-thousand (525) are bouncy. In fact, the least number for which the proportion of bouncy numbers first reaches 50% is 538.</strong>
-<strong>Surprisingly, bouncy numbers become more and more common and by the time we reach 21780 the proportion of bouncy numbers is equal to 90%.</strong>
-<strong>Find the least number for which the proportion of bouncy numbers is exactly 99%.</strong></p>
-<p>Follow by the description in the problem, we may check if a number with <strong>d</strong> digits (d &lt;= 3) is increasing with a marker <code>is_increasing</code>, which records a <code>True</code> if the left digit is less than the right digits. Similarly we can have a marker <code>is_decreasing</code>.</p>
-<p>Starting from the left-most digit, if the number is increasing then the marker <code>is_increasing</code> should record <code>True</code> for d-1 times, and the marker <code>is_decreasing</code> should record <code>False</code> for d-1 times (for example, 3 times for each marker for 2578); they work similarly for decreasing numbers.</p>
-<p>However, if <code>is_increasing</code> records <code>False</code> for at least once within the <code>True</code>'s (for example, 2145), it means that somewhere in the number the left digit is larger than the right digit (therefore not increasing anymore). Therefore, if the results for <code>is_increasing</code> and <code>is_decreasing</code> are not all <code>True</code> or <code>False</code>, respectively, the number is bouncy.</p>
-<p>Follows the logic above, we first define the function to check if a given number is bouncy,</p>
-<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">is_bouncy</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Check if a given integer n is bouncy</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<p>and define the function to update the dataset used for plotting by the interactive input</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">response</span><span class="p">(</span><span class="n">change</span><span class="p">):</span>
+    <span class="n">filter_list1</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="ow">and</span> <span class="n">j</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span>
+                    <span class="nb">zip</span><span class="p">(</span><span class="n">df1</span><span class="p">[</span><span class="s1">&#39;entity&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">entity1</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">df1</span><span class="p">[</span><span class="s1">&#39;age_group&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">age</span><span class="o">.</span><span class="n">value</span><span class="p">)]</span>
+    <span class="n">temp_df1</span> <span class="o">=</span> <span class="n">df1</span><span class="p">[</span><span class="n">filter_list1</span><span class="p">]</span>
+    <span class="n">filter_list2</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="ow">and</span> <span class="n">j</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span>
+                    <span class="nb">zip</span><span class="p">(</span><span class="n">df1</span><span class="p">[</span><span class="s1">&#39;entity&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">entity2</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">df1</span><span class="p">[</span><span class="s1">&#39;age_group&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">age</span><span class="o">.</span><span class="n">value</span><span class="p">)]</span>
+    <span class="n">temp_df2</span> <span class="o">=</span> <span class="n">df1</span><span class="p">[</span><span class="n">filter_list2</span><span class="p">]</span>
 
-    <span class="n">digits</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">n</span><span class="p">)]</span>
-    <span class="n">is_inc</span><span class="p">,</span> <span class="n">is_dec</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">False</span>
-    <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">range</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">digits</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
-        <span class="k">if</span> <span class="p">(</span><span class="n">digits</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">digits</span><span class="p">[</span><span class="n">idx</span><span class="o">+</span><span class="mi">1</span><span class="p">]):</span>
-            <span class="n">is_inc</span> <span class="o">=</span> <span class="kc">True</span>
-        <span class="k">elif</span> <span class="p">(</span><span class="n">digits</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">digits</span><span class="p">[</span><span class="n">idx</span><span class="o">+</span><span class="mi">1</span><span class="p">]):</span>
-            <span class="n">is_dec</span> <span class="o">=</span> <span class="kc">True</span>
-        <span class="k">if</span> <span class="p">(</span><span class="n">is_inc</span> <span class="ow">and</span> <span class="n">is_dec</span><span class="p">):</span>
-            <span class="k">return</span> <span class="kc">True</span>
-    <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">with</span> <span class="n">g</span><span class="o">.</span><span class="n">batch_update</span><span class="p">():</span>
+        <span class="n">g</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">temp_df1</span><span class="p">[</span><span class="s1">&#39;year&#39;</span><span class="p">]</span>
+        <span class="n">g</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">temp_df1</span><span class="p">[</span><span class="s1">&#39;deaths&#39;</span><span class="p">]</span>
+        <span class="n">g</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">temp_df2</span><span class="p">[</span><span class="s1">&#39;year&#39;</span><span class="p">]</span>
+        <span class="n">g</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">temp_df2</span><span class="p">[</span><span class="s1">&#39;deaths&#39;</span><span class="p">]</span>
+        <span class="n">g</span><span class="o">.</span><span class="n">layout</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="s1">&#39;Year&#39;</span>
+        <span class="n">g</span><span class="o">.</span><span class="n">layout</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="s1">&#39;Number of Deaths&#39;</span>
+
+
+<span class="n">entity1</span><span class="o">.</span><span class="n">observe</span><span class="p">(</span><span class="n">response</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="s2">&quot;value&quot;</span><span class="p">)</span>
+<span class="n">age</span><span class="o">.</span><span class="n">observe</span><span class="p">(</span><span class="n">response</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="s2">&quot;value&quot;</span><span class="p">)</span>
+<span class="n">entity2</span><span class="o">.</span><span class="n">observe</span><span class="p">(</span><span class="n">response</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="s2">&quot;value&quot;</span><span class="p">)</span>
 </code></pre></div>
 
 
-<p>and then use the function to define the function that calculate the percent of bouncy numbers less than a given number.</p>
-<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">bouncy_perc</span><span class="p">(</span><span class="n">perc_lim</span><span class="p">,</span> <span class="n">upper_lim</span> <span class="o">=</span> <span class="mi">200_0000</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Compute the bouncy percentage of every number below the given upper limit,</span>
-<span class="sd">        and returns the number once the limit reaches the given p</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="n">n_bouncy</span> <span class="o">=</span> <span class="mi">0</span> 
-    <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="n">upper_lim</span><span class="p">):</span>
-        <span class="k">if</span><span class="p">(</span><span class="n">is_bouncy</span><span class="p">(</span><span class="n">i</span><span class="p">)):</span>
-            <span class="n">n_bouncy</span> <span class="o">+=</span> <span class="mi">1</span>
-        <span class="n">bouncy_perc</span> <span class="o">=</span> <span class="n">n_bouncy</span> <span class="o">/</span> <span class="n">i</span><span class="o">*</span><span class="mi">100</span>
-        <span class="k">if</span> <span class="n">bouncy_perc</span> <span class="o">==</span> <span class="n">perc_lim</span><span class="p">:</span>
-            <span class="k">break</span>
-    <span class="k">return</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+<p>Finally, update the plot</p>
+<div class="highlight"><pre><span></span><code><span class="n">container2</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span class="n">HBox</span><span class="p">([</span><span class="n">age</span><span class="p">])</span>
+<span class="n">widgets</span><span class="o">.</span><span class="n">VBox</span><span class="p">([</span><span class="n">container2</span><span class="p">,</span>
+              <span class="n">container</span><span class="p">,</span>
+              <span class="n">g</span><span class="p">])</span>
 </code></pre></div>
 
 
-<p>Run <code>bouncy_perc(90)</code> and get <strong>21780</strong>.</p>                </article>
+<h2>Dot Plot (Bubble Plot)<a name="section2"></a></h2>
+<p>I use plotly again because it can plot 'animated' graph conviniently by slider by looking at the documentation <a href="https://plotly.com/python/sliders/">https://plotly.com/python/sliders/</a>. </p>
+<p>The second plot I made demonstrate how gdp and deaths number evolves by time (labelled by continent).
+<a href="/images/dot.png">dot_plot</a></p>
+<p>The data of population is from United Nations, Department of Economic and Social Affairs. Because the exact population is only updated to the year 2010, and therefore I only use the data from <code>alaria_deaths.csv</code> up to 2010. The data of GDP is from worldbank.org.</p>
+<p>Read the data of number of death of malaria and the mapping table of country code and continent.</p>
+<div class="highlight"><pre><span></span><code><span class="n">deaths</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;malaria_deaths.csv&#39;</span><span class="p">)</span>
+<span class="n">deaths</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;entity&#39;</span><span class="p">,</span> <span class="s1">&#39;country code&#39;</span><span class="p">,</span> <span class="s1">&#39;year&#39;</span><span class="p">,</span> <span class="s1">&#39;deaths&#39;</span><span class="p">]</span>
+
+<span class="n">codes</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;country_code.csv&#39;</span><span class="p">)</span>
+<span class="n">codes</span> <span class="o">=</span> <span class="n">codes</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">+</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">+</span><span class="p">[</span><span class="mi">5</span><span class="p">]]</span>
+<span class="c1"># standarize variable names</span>
+<span class="n">codes</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;continent&#39;</span><span class="p">,</span> <span class="s1">&#39;entity&#39;</span><span class="p">,</span> <span class="s1">&#39;country code&#39;</span><span class="p">,</span> <span class="s1">&#39;numeric code&#39;</span><span class="p">]</span>
+</code></pre></div>
+
+
+<p>Then read, standarize, and merge the population and GDP data by either country code or numeric country code.</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># read population data</span>
+<span class="n">pop</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span><span class="s1">&#39;WPP2010_DB2_F01_TOTAL_POPULATION_BOTH_SEXES.XLS&#39;</span><span class="p">,</span> <span class="n">header</span> <span class="o">=</span> <span class="mi">16</span><span class="p">)</span>
+<span class="n">pop</span> <span class="o">=</span> <span class="n">pop</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">9</span><span class="p">)))</span>
+<span class="n">pop</span> <span class="o">=</span> <span class="n">pop</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Index&#39;</span><span class="p">,</span> <span class="s1">&#39;Variant&#39;</span><span class="p">,</span> <span class="s1">&#39;Notes&#39;</span><span class="p">])</span>
+<span class="n">pop</span> <span class="o">=</span> <span class="n">pop</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:</span> <span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="mi">21</span><span class="p">,</span> <span class="mi">0</span><span class="p">))]</span>
+<span class="n">pop</span> <span class="o">=</span> <span class="n">pop</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;Major area, region, country or area&#39;</span><span class="p">:</span><span class="s1">&#39;entity&#39;</span><span class="p">})</span>
+<span class="n">pop</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">melt</span><span class="p">(</span><span class="n">pop</span><span class="p">,</span> <span class="n">id_vars</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;entity&#39;</span><span class="p">,</span> <span class="s1">&#39;Country code&#39;</span><span class="p">])</span>
+<span class="n">pop</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;entity&#39;</span><span class="p">,</span> <span class="s1">&#39;numeric code&#39;</span><span class="p">,</span> <span class="s1">&#39;year&#39;</span><span class="p">,</span> <span class="s1">&#39;population&#39;</span><span class="p">]</span>
+<span class="n">pop</span><span class="p">[</span><span class="s1">&#39;year&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">pop</span><span class="p">[</span><span class="s1">&#39;year&#39;</span><span class="p">])</span>
+
+<span class="n">pop1</span> <span class="o">=</span> <span class="n">pop</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">codes</span><span class="p">,</span> <span class="n">on</span> <span class="o">=</span> <span class="s1">&#39;numeric code&#39;</span><span class="p">,</span> <span class="n">how</span> <span class="o">=</span> <span class="s1">&#39;left&#39;</span><span class="p">)</span>
+<span class="n">pop1</span> <span class="o">=</span> <span class="n">pop1</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;entity_y&#39;</span><span class="p">,</span> <span class="s1">&#39;numeric code&#39;</span><span class="p">])</span>
+<span class="n">pop1</span> <span class="o">=</span> <span class="n">pop1</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;entity_x&#39;</span><span class="p">:</span><span class="s1">&#39;entity&#39;</span><span class="p">})</span>
+
+<span class="c1"># read gdp data</span>
+<span class="n">gdp</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;GDP_country.csv&#39;</span><span class="p">,</span> <span class="n">header</span> <span class="o">=</span> <span class="mi">2</span><span class="p">)</span>
+<span class="n">gdp</span> <span class="o">=</span> <span class="n">gdp</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Indicator Name&#39;</span><span class="p">,</span> <span class="s1">&#39;Indicator Code&#39;</span><span class="p">])</span>
+<span class="n">gdp</span> <span class="o">=</span> <span class="n">gdp</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="mi">32</span><span class="p">,</span> <span class="o">-</span><span class="mi">11</span><span class="p">))]</span>
+<span class="n">gdp</span> <span class="o">=</span> <span class="n">gdp</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;Country Name&#39;</span><span class="p">:</span><span class="s1">&#39;entity&#39;</span><span class="p">})</span>
+<span class="n">gdp</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">melt</span><span class="p">(</span><span class="n">gdp</span><span class="p">,</span> <span class="n">id_vars</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;entity&#39;</span><span class="p">,</span> <span class="s1">&#39;Country Code&#39;</span><span class="p">])</span>
+<span class="n">gdp</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;entity&#39;</span><span class="p">,</span> <span class="s1">&#39;country code&#39;</span><span class="p">,</span> <span class="s1">&#39;year&#39;</span><span class="p">,</span> <span class="s1">&#39;gdp&#39;</span><span class="p">]</span>
+<span class="n">gdp</span><span class="p">[</span><span class="s1">&#39;year&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">gdp</span><span class="p">[</span><span class="s1">&#39;year&#39;</span><span class="p">])</span>
+
+<span class="n">gdp1</span> <span class="o">=</span> <span class="n">gdp</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">codes</span><span class="p">,</span> <span class="n">on</span> <span class="o">=</span> <span class="s1">&#39;country code&#39;</span><span class="p">,</span> <span class="n">how</span> <span class="o">=</span> <span class="s1">&#39;left&#39;</span><span class="p">)</span>
+<span class="n">gdp1</span> <span class="o">=</span> <span class="n">gdp1</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;numeric code&#39;</span><span class="p">])</span>
+<span class="n">gdp1</span> <span class="o">=</span> <span class="n">gdp1</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;entity_y&#39;</span><span class="p">,</span> <span class="s1">&#39;numeric code&#39;</span><span class="p">])</span>
+<span class="n">gdp1</span> <span class="o">=</span> <span class="n">gdp1</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;entity_x&#39;</span><span class="p">:</span><span class="s1">&#39;entity&#39;</span><span class="p">})</span>
+
+<span class="c1"># merge data</span>
+
+<span class="c1"># merge deaths and population</span>
+<span class="n">death_pop</span> <span class="o">=</span> <span class="n">deaths</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">pop1</span><span class="p">,</span> <span class="n">on</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;country code&#39;</span><span class="p">,</span> <span class="s1">&#39;year&#39;</span><span class="p">],</span> <span class="n">how</span> <span class="o">=</span> <span class="s1">&#39;left&#39;</span><span class="p">)</span>
+<span class="n">death_pop</span> <span class="o">=</span> <span class="n">death_pop</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;entity_y&#39;</span><span class="p">])</span>
+<span class="n">death_pop</span> <span class="o">=</span> <span class="n">death_pop</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;entity_x&#39;</span><span class="p">:</span><span class="s1">&#39;entity&#39;</span><span class="p">})</span>
+<span class="n">death_pop</span> <span class="o">=</span> <span class="n">death_pop</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;population&#39;</span><span class="p">])</span>
+
+<span class="c1"># merge with GDP</span>
+<span class="n">df2</span> <span class="o">=</span> <span class="n">death_pop</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">gdp1</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;year&#39;</span><span class="p">,</span> <span class="s1">&#39;country code&#39;</span><span class="p">,</span> <span class="s1">&#39;continent&#39;</span><span class="p">],</span> <span class="n">how</span> <span class="o">=</span> <span class="s1">&#39;left&#39;</span><span class="p">)</span>
+<span class="n">df2</span> <span class="o">=</span> <span class="n">df2</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;entity_y&#39;</span><span class="p">])</span>
+<span class="n">df2</span> <span class="o">=</span> <span class="n">df2</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;entity_x&#39;</span><span class="p">:</span><span class="s1">&#39;entity&#39;</span><span class="p">})</span>
+<span class="n">df2</span> <span class="o">=</span> <span class="n">df2</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;country code&#39;</span><span class="p">])</span>
+<span class="n">df2</span><span class="p">[</span><span class="s1">&#39;gdp&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df2</span><span class="p">[</span><span class="s1">&#39;gdp&#39;</span><span class="p">]</span><span class="o">/</span><span class="mi">1000000</span>
+</code></pre></div>
+
+
+<p>Finally, the code to create the interactive plot with the slider is as simple as:</p>
+<div class="highlight"><pre><span></span><code><span class="n">fig</span> <span class="o">=</span> <span class="n">px</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">df2</span><span class="p">,</span> 
+                 <span class="n">x</span><span class="o">=</span><span class="s2">&quot;gdp&quot;</span><span class="p">,</span>
+                 <span class="n">y</span><span class="o">=</span><span class="s2">&quot;deaths&quot;</span><span class="p">,</span>
+                 <span class="n">animation_frame</span><span class="o">=</span><span class="s2">&quot;year&quot;</span><span class="p">,</span> 
+                 <span class="n">animation_group</span><span class="o">=</span><span class="s2">&quot;entity&quot;</span><span class="p">,</span>
+                 <span class="n">size</span><span class="o">=</span><span class="s2">&quot;population&quot;</span><span class="p">,</span> 
+                 <span class="n">color</span><span class="o">=</span><span class="s2">&quot;continent&quot;</span><span class="p">,</span>
+                 <span class="n">hover_name</span><span class="o">=</span><span class="s2">&quot;entity&quot;</span><span class="p">,</span> 
+                 <span class="n">size_max</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span>
+                <span class="n">labels</span><span class="o">=</span><span class="p">{</span>
+                     <span class="s2">&quot;gdp&quot;</span><span class="p">:</span> <span class="s2">&quot;gdp in $1,000,000&quot;</span><span class="p">,</span>
+                     <span class="s2">&quot;deaths&quot;</span><span class="p">:</span> <span class="s2">&quot;deaths per 100,000 people&quot;</span>
+                 <span class="p">},</span>
+                <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Deaths by Malaria vs. GDP&quot;</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+
+
+<h2>Boxplot<a name="section3"></a></h2>
+<p>Then I chose <code>seaborn</code>, as it produce simple and clear visulizations. For example, by the plot below we can see that the number of incidence of malaria has a clear decreasing trend over years.</p>
+<p>After reading in the data on the number of incidence of malaria, I named it <code>inc</code>.</p>
+<div class="highlight"><pre><span></span><code><span class="n">ax</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">boxplot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s2">&quot;Year&quot;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s2">&quot;Incidence&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">inc</span><span class="p">)</span>
+</code></pre></div>
+
+
+<p><a href="/images/box.png">boxplot</a></p>
+<p>We can zoom in by setting the limit of y-axis to take a closer look at the difference between the years</p>
+<div class="highlight"><pre><span></span><code><span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s2">&quot;figure.figsize&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mf">7.50</span><span class="p">,</span> <span class="mf">7.50</span><span class="p">]</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s2">&quot;figure.autolayout&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">ax</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">boxplot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s2">&quot;Year&quot;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s2">&quot;Incidence&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">inc</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">700</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Incidence of Malaria(per 1,000 people) at risk by year&quot;</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+
+
+<p><a href="/images/box_zoomed.png">boxplot_zoomed</a></p>                </article>
             </aside><!-- /#featured -->
                 <section id="content" class="body">
                     <h1>Other articles</h1>
@@ -157,6 +245,33 @@ Then we can search the triplets with given p, with a starting from 1.</p>
 
                 <div class="entry-content">
 <footer class="post-info">
+        <abbr class="published" title="2021-09-17T00:00:00-04:00">
+                Published: Fri 17 September 2021
+        </abbr>
+
+        <address class="vcard author">
+                By                         <a class="url fn" href="/author/xige-huang.html">Xige Huang</a>
+        </address>
+<p>In <a href="/category/misc.html">misc</a>.</p>
+
+</footer><!-- /.post-info -->                <h1>Number theory and a Google recruitment puzzle</h1>
+<h2>The question:</h2>
+<p>Find the first 10-digit prime in the decimal expansion of 17π.</p>
+<p>First solve sub-problems (and write unit tests for each of the three functions):</p>
+<ul>
+<li>Write a function to generate an arbitrary large expansion of a mathematical expression like π. Hint: You …</li></ul>
+                <a class="readmore" href="/homework-2.html">read more</a>
+                </div><!-- /.entry-content -->
+            </article></li>
+
+            <li><article class="hentry">
+                <header>
+                    <h1><a href="/homework-1.html" rel="bookmark"
+                           title="Permalink to Homework 1">Homework 1</a></h1>
+                </header>
+
+                <div class="entry-content">
+<footer class="post-info">
         <abbr class="published" title="2021-09-03T00:00:00-04:00">
                 Published: Fri 03 September 2021
         </abbr>
@@ -166,9 +281,13 @@ Then we can search the triplets with given p, with a starting from 1.</p>
         </address>
 <p>In <a href="/category/misc.html">misc</a>.</p>
 
-</footer><!-- /.post-info -->                <h1>Number theory and a Google recruitment puzzle</h1>
-<p>test for second post</p>
-                <a class="readmore" href="/homework-2.html">read more</a>
+</footer><!-- /.post-info -->                <h1>Math is fun - Euler Project</h1>
+<h2>Problem 7 - 10001st prime</h2>
+<p><em>solved by 424633</em></p>
+<p><strong>By listing the first six prime numbers: 2, 3, 5, 7, 11, and 13, we can see that the 6th prime is 13.</strong>
+<strong>What is the 10 001st prime number?</strong></p>
+<p>My intuition to approach this problem is to …</p>
+                <a class="readmore" href="/homework-1.html">read more</a>
                 </div><!-- /.entry-content -->
             </article></li>
                 </ol><!-- /#posts-list -->
