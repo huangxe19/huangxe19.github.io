@@ -48,7 +48,7 @@
 <p>Because the data is time series data, therefore it's always useful to take a first look at the trend throughout the years. </p>
 <p>I use <code>Plotly</code> to plot two scatter lines, which allows user to select the two countries they want to compare.</p>
 <p>The first reason I chose plotly is that plotly allows intreactive filtering of the data by widgets. Moreover, the 'compare data on hover' feature is especially useful to see the exact numbers of the plots by moving through the lines.</p>
-<p><a href="/images/scatter.png">scatter_plot</a></p>
+<p><img alt="Hi" src="/images/scatter.png"></p>
 <p>First read the data</p>
 <div class="highlight"><pre><span></span><code><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;malaria_deaths_age.txt&#39;</span><span class="p">)</span>
 <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span> <span class="o">=</span> <span class="s1">&#39;Unnamed: 0&#39;</span><span class="p">)</span>
@@ -138,7 +138,7 @@
 <h2>Dot Plot (Bubble Plot)<a name="section2"></a></h2>
 <p>I use plotly again because it can plot 'animated' graph conviniently by slider by looking at the documentation <a href="https://plotly.com/python/sliders/">https://plotly.com/python/sliders/</a>. </p>
 <p>The second plot I made demonstrate how gdp and deaths number evolves by time (labelled by continent).
-<a href="/images/dot.png">dot_plot</a></p>
+<img alt="Hi" src="/images/dot.png"></p>
 <p>The data of population is from United Nations, Department of Economic and Social Affairs. Because the exact population is only updated to the year 2010, and therefore I only use the data from <code>alaria_deaths.csv</code> up to 2010. The data of GDP is from worldbank.org.</p>
 <p>Read the data of number of death of malaria and the mapping table of country code and continent.</p>
 <div class="highlight"><pre><span></span><code><span class="n">deaths</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;malaria_deaths.csv&#39;</span><span class="p">)</span>
@@ -223,7 +223,7 @@
 </code></pre></div>
 
 
-<p><a href="/images/box.png">boxplot</a></p>
+<p><img alt="Hi" src="/images/box.png"></p>
 <p>We can zoom in by setting the limit of y-axis to take a closer look at the difference between the years</p>
 <div class="highlight"><pre><span></span><code><span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s2">&quot;figure.figsize&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mf">7.50</span><span class="p">,</span> <span class="mf">7.50</span><span class="p">]</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s2">&quot;figure.autolayout&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
@@ -236,7 +236,7 @@
 </code></pre></div>
 
 
-<p><a href="/images/box_zoomed.png">boxplot_zoomed</a></p>
+<p><img alt="Hi" src="/images/box_zoomed.png"></p>
     </div><!-- /.entry-content -->
 
   </article>
