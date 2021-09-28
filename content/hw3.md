@@ -23,7 +23,7 @@ I use `Plotly` to plot two scatter lines, which allows user to select the two co
 
 The first reason I chose plotly is that plotly allows intreactive filtering of the data by widgets. Moreover, the 'compare data on hover' feature is especially useful to see the exact numbers of the plots by moving through the lines.
 
-[scatter_plot]
+![Hi][scatter_plot]
 
 First read the data
 ```python
@@ -119,7 +119,7 @@ widgets.VBox([container2,
 I use plotly again because it can plot 'animated' graph conviniently by slider by looking at the documentation <https://plotly.com/python/sliders/>. 
 
 The second plot I made demonstrate how gdp and deaths number evolves by time (labelled by continent).
-[dot_plot]
+![Hi][dot_plot]
 
 The data of population is from United Nations, Department of Economic and Social Affairs. Because the exact population is only updated to the year 2010, and therefore I only use the data from `alaria_deaths.csv` up to 2010. The data of GDP is from worldbank.org.
 
@@ -213,7 +213,7 @@ After reading in the data on the number of incidence of malaria, I named it `inc
 ax = sns.boxplot(x="Year", y="Incidence", data=inc)
 ```
 
-[boxplot]
+![Hi][boxplot]
 
 We can zoom in by setting the limit of y-axis to take a closer look at the difference between the years
 
@@ -228,7 +228,7 @@ plt.title("Incidence of Malaria(per 1,000 people) at risk by year")
 plt.show()
 ```
 
-[boxplot_zoomed]
+![Hi][boxplot_zoomed]
 
 
 
