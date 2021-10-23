@@ -20,7 +20,7 @@
 &lt;p&gt;Because the data is time series data, therefore it's always useful to take a first look at the trend throughout the years. &lt;/p&gt;
 &lt;p&gt;I use &lt;code&gt;Plotly&lt;/code&gt; to plot two scatter lines, which allows user to select the two countries they want to compare.&lt;/p&gt;
 &lt;p&gt;The first reason I chose plotly is that plotly allows intreactive filtering of the data by widgets. Moreover, the 'compare data on hover' feature is especially useful to see the exact numbers of the plots by moving through the lines.&lt;/p&gt;
-&lt;p&gt;&lt;a href="/images/scatter.png"&gt;scatter_plot&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img alt="Hi" src="/images/scatter.png"&gt;&lt;/p&gt;
 &lt;p&gt;First read the data&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="n"&gt;df&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;pd&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;read_csv&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;malaria_deaths_age.txt&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 &lt;span class="n"&gt;df&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;df&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;drop&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;columns&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;Unnamed: 0&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
@@ -110,7 +110,7 @@
 &lt;h2&gt;Dot Plot (Bubble Plot)&lt;a name="section2"&gt;&lt;/a&gt;&lt;/h2&gt;
 &lt;p&gt;I use plotly again because it can plot 'animated' graph conviniently by slider by looking at the documentation &lt;a href="https://plotly.com/python/sliders/"&gt;https://plotly.com/python/sliders/&lt;/a&gt;. &lt;/p&gt;
 &lt;p&gt;The second plot I made demonstrate how gdp and deaths number evolves by time (labelled by continent).
-&lt;a href="/images/dot.png"&gt;dot_plot&lt;/a&gt;&lt;/p&gt;
+&lt;img alt="Hi" src="/images/dot.png"&gt;&lt;/p&gt;
 &lt;p&gt;The data of population is from United Nations, Department of Economic and Social Affairs. Because the exact population is only updated to the year 2010, and therefore I only use the data from &lt;code&gt;alaria_deaths.csv&lt;/code&gt; up to 2010. The data of GDP is from worldbank.org.&lt;/p&gt;
 &lt;p&gt;Read the data of number of death of malaria and the mapping table of country code and continent.&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="n"&gt;deaths&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;pd&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;read_csv&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;malaria_deaths.csv&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
@@ -195,7 +195,7 @@
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;&lt;a href="/images/box.png"&gt;boxplot&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img alt="Hi" src="/images/box.png"&gt;&lt;/p&gt;
 &lt;p&gt;We can zoom in by setting the limit of y-axis to take a closer look at the difference between the years&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="n"&gt;plt&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;rcParams&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;figure.figsize&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mf"&gt;7.50&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mf"&gt;7.50&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
 &lt;span class="n"&gt;plt&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;rcParams&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;figure.autolayout&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="kc"&gt;True&lt;/span&gt;
@@ -208,12 +208,12 @@
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;&lt;a href="/images/box_zoomed.png"&gt;boxplot_zoomed&lt;/a&gt;&lt;/p&gt;</content><category term="misc"></category></entry><entry><title>Homework 2</title><link href="/homework-2.html" rel="alternate"></link><published>2021-09-17T00:00:00-04:00</published><updated>2021-09-17T00:00:00-04:00</updated><author><name>Xige Huang</name></author><id>tag:None,2021-09-17:/homework-2.html</id><summary type="html">&lt;h1&gt;Number theory and a Google recruitment puzzle&lt;/h1&gt;
+&lt;p&gt;&lt;img alt="Hi" src="/images/box_zoomed.png"&gt;&lt;/p&gt;</content><category term="misc"></category></entry><entry><title>Homework 2</title><link href="/homework-2.html" rel="alternate"></link><published>2021-09-17T00:00:00-04:00</published><updated>2021-09-17T00:00:00-04:00</updated><author><name>Xige Huang</name></author><id>tag:None,2021-09-17:/homework-2.html</id><summary type="html">&lt;h1&gt;Number theory and a Google recruitment puzzle&lt;/h1&gt;
 &lt;h2&gt;The question:&lt;/h2&gt;
 &lt;p&gt;Find the first 10-digit prime in the decimal expansion of 17π.&lt;/p&gt;
 &lt;p&gt;First solve sub-problems (and write unit tests for each of the three functions):&lt;/p&gt;
 &lt;ul&gt;
-&lt;li&gt;Write a function to generate an arbitrary large expansion of a mathematical expression like π. Hint: You …&lt;/li&gt;&lt;/ul&gt;</summary><content type="html">&lt;h1&gt;Number theory and a Google recruitment puzzle&lt;/h1&gt;
+&lt;li&gt;Write a function to generate an arbitrary large expansion of a mathematical expression like π. Hint: You can …&lt;/li&gt;&lt;/ul&gt;</summary><content type="html">&lt;h1&gt;Number theory and a Google recruitment puzzle&lt;/h1&gt;
 &lt;h2&gt;The question:&lt;/h2&gt;
 &lt;p&gt;Find the first 10-digit prime in the decimal expansion of 17π.&lt;/p&gt;
 &lt;p&gt;First solve sub-problems (and write unit tests for each of the three functions):&lt;/p&gt;
