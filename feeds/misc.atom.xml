@@ -213,7 +213,7 @@
 &lt;p&gt;Find the first 10-digit prime in the decimal expansion of 17π.&lt;/p&gt;
 &lt;p&gt;First solve sub-problems (and write unit tests for each of the three functions):&lt;/p&gt;
 &lt;ul&gt;
-&lt;li&gt;Write a function to generate an arbitrary large expansion of a mathematical expression like π. Hint: You …&lt;/li&gt;&lt;/ul&gt;</summary><content type="html">&lt;h1&gt;Number theory and a Google recruitment puzzle&lt;/h1&gt;
+&lt;li&gt;Write a function to generate an arbitrary large expansion of a mathematical expression like π. Hint: You can …&lt;/li&gt;&lt;/ul&gt;</summary><content type="html">&lt;h1&gt;Number theory and a Google recruitment puzzle&lt;/h1&gt;
 &lt;h2&gt;The question:&lt;/h2&gt;
 &lt;p&gt;Find the first 10-digit prime in the decimal expansion of 17π.&lt;/p&gt;
 &lt;p&gt;First solve sub-problems (and write unit tests for each of the three functions):&lt;/p&gt;
