@@ -20,7 +20,388 @@
 
             <aside id="featured" class="body">
                 <article>
-                    <h1 class="entry-title"><a href="/homework-3.html">Homework 3</a></h1>
+                    <h1 class="entry-title"><a href="/homework-4.html">Homework 4</a></h1>
+<footer class="post-info">
+        <abbr class="published" title="2021-10-23T00:00:00-04:00">
+                Published: Sat 23 October 2021
+        </abbr>
+
+        <address class="vcard author">
+                By                         <a class="url fn" href="/author/xige-huang.html">Xige Huang</a>
+        </address>
+<p>In <a href="/category/misc.html">misc</a>.</p>
+
+</footer><!-- /.post-info --><h1>Is there life after graduation? - visualization and analysis in dashboard</h1>
+<p>Data Source for this assignment: <a href="https://ncses.nsf.gov/pubs/nsf19301/data">https://ncses.nsf.gov/pubs/nsf19301/data</a></p>
+<p>I used <code>dash</code> by <code>plotly</code> to build the dashboard, as I'm becomming familiar with the plots using <code>plotly</code> so I imagine it would be more straightforward to integrate the plots into the dashboard.</p>
+<h2>Plot1</h2>
+<p>First I want to have a look of the trend of number of doctorates recipients by years; this may provide us the insight that if post doctoral plans can affect the number of people applying for doctorates degree.</p>
+<p>The dataset cleaned for plotting looks like:
+<img alt="Hi" src="/images/df1.png"></p>
+<p>The plot will look like:
+<img alt="Hi" src="/images/plot1.png"></p>
+<p>The code for a scatter plot by year</p>
+<div class="highlight"><pre><span></span><code><span class="n">px</span><span class="o">.</span><span class="n">line</span><span class="p">(</span><span class="n">df_recip</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="s1">&#39;variable&#39;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s1">&#39;value&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;Major field of study&#39;</span><span class="p">,</span>
+       <span class="n">labels</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;number of degree awarded&quot;</span><span class="p">,</span>
+               <span class="s2">&quot;variable&quot;</span><span class="p">:</span> <span class="s2">&quot;year&quot;</span><span class="p">},</span>
+        <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Number of Doctoral Degree Awarded&quot;</span><span class="p">,</span>
+        <span class="n">template</span><span class="o">=</span><span class="s1">&#39;plotly_white&#39;</span><span class="p">)</span>
+</code></pre></div>
+
+
+<p>Furthermore, we will need a dropdown menu to filter for the gender of this plot,</p>
+<div class="highlight"><pre><span></span><code><span class="n">dcc</span><span class="o">.</span><span class="n">Dropdown</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s2">&quot;gender1_dropdown&quot;</span><span class="p">,</span>
+             <span class="n">options</span><span class="o">=</span><span class="p">[{</span><span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="n">i</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="n">i</span><span class="p">}</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">df1</span><span class="p">[</span><span class="s1">&#39;Gender&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()],</span>
+             <span class="n">value</span> <span class="o">=</span> <span class="s1">&#39;Total&#39;</span><span class="p">)</span>
+</code></pre></div>
+
+
+<h2>Plot2</h2>
+<p>Next, we can take a look at the median expected salary vs. the median year to graduation (couting from the time of entering the doctorates program) by field of study. Maybe this can provides some insights on if the difficulty to gruaduate influences people's expectation regarding post-doc plans.</p>
+<p>The cleaned dataframe for plotting looks like:
+<img alt="Hi" src="/images/df2.png"></p>
+<p>I integrated the two indicators into one grouped histogram, with separated y-axis. The plot should look like:
+<img alt="Hi" src="/images/plot2.png"></p>
+<p>The code for the grouped bar plot</p>
+<div class="highlight"><pre><span></span><code><span class="n">df_expsal_study1</span> <span class="o">=</span> <span class="n">df_expsal_study</span><span class="p">[</span><span class="n">df_expsal_study</span><span class="p">[</span><span class="s1">&#39;variable&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;Male&#39;</span><span class="p">]</span>
+<span class="n">df_median_grad1</span> <span class="o">=</span> <span class="n">df_median_grad</span><span class="p">[</span><span class="n">df_median_grad</span><span class="p">[</span><span class="s1">&#39;variable&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;Male&#39;</span><span class="p">]</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">make_subplots</span><span class="p">(</span><span class="n">specs</span><span class="o">=</span><span class="p">[[{</span><span class="s2">&quot;secondary_y&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}]])</span>
+
+<span class="n">fig</span><span class="o">.</span><span class="n">add_trace</span><span class="p">(</span>
+    <span class="n">go</span><span class="o">.</span><span class="n">Bar</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">df_expsal_study1</span><span class="p">[</span><span class="s1">&#39;Field of study&#39;</span><span class="p">],</span> 
+           <span class="n">y</span><span class="o">=</span><span class="n">df_expsal_study1</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">],</span>
+           <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;expected salary&#39;</span><span class="p">,</span>
+          <span class="n">offsetgroup</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+          <span class="n">secondary_y</span><span class="o">=</span><span class="kc">False</span>
+<span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">add_trace</span><span class="p">(</span>
+    <span class="n">go</span><span class="o">.</span><span class="n">Bar</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">df_median_grad1</span><span class="p">[</span><span class="s1">&#39;Field of study&#39;</span><span class="p">],</span> 
+           <span class="n">y</span><span class="o">=</span><span class="n">df_median_grad1</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">],</span>
+           <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;median year to graduation&#39;</span><span class="p">,</span>
+          <span class="n">offsetgroup</span><span class="o">=</span><span class="mi">2</span><span class="p">),</span>
+          <span class="n">secondary_y</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+
+<span class="c1"># Add figure title</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">update_layout</span><span class="p">(</span>
+    <span class="n">title_text</span><span class="o">=</span><span class="s2">&quot;Expected sal and median years to doctorates degree&quot;</span>
+<span class="p">)</span>
+
+<span class="c1"># Set x-axis title</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">update_xaxes</span><span class="p">(</span><span class="n">title_text</span><span class="o">=</span><span class="s1">&#39;Field of Study&#39;</span><span class="p">)</span>
+
+<span class="c1"># Set y-axes titles</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">update_yaxes</span><span class="p">(</span><span class="n">title_text</span><span class="o">=</span><span class="s2">&quot;expected salary&quot;</span><span class="p">,</span> <span class="n">secondary_y</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">update_yaxes</span><span class="p">(</span><span class="n">title_text</span><span class="o">=</span><span class="s2">&quot;years to degree&quot;</span><span class="p">,</span> <span class="n">secondary_y</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+
+<span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+
+
+<p>For this plot, we will need two dropdowns: one filters gender and the other filters the type of post doctoral plan (employment or post-doc study)</p>
+<div class="highlight"><pre><span></span><code><span class="n">dcc</span><span class="o">.</span><span class="n">Dropdown</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s2">&quot;gender2_dropdown&quot;</span><span class="p">,</span>
+             <span class="n">options</span><span class="o">=</span><span class="p">[{</span><span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="n">i</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="n">i</span><span class="p">}</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">df_median_grad</span><span class="p">[</span><span class="s1">&#39;variable&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()],</span>
+             <span class="n">value</span> <span class="o">=</span> <span class="s1">&#39;Female&#39;</span><span class="p">)</span>
+</code></pre></div>
+
+
+<div class="highlight"><pre><span></span><code><span class="n">dcc</span><span class="o">.</span><span class="n">Dropdown</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s1">&#39;type1_dropdown&#39;</span><span class="p">,</span>
+             <span class="n">options</span><span class="o">=</span><span class="p">[{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Employment&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;Employment&quot;</span><span class="p">},</span>
+             <span class="p">{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Postdoctoral study&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;Postdoctoral study&quot;</span><span class="p">}],</span>
+             <span class="n">value</span> <span class="o">=</span> <span class="s1">&#39;Employment&#39;</span><span class="p">)</span>
+</code></pre></div>
+
+
+<h2>Plot 3</h2>
+<p>Finally, we can take a look at the proportion of different post doctoral plans by field of study.
+One thing to note here is that I directly format the data in excel, instead of in pandas.
+I have valid reason to do so, hope you read this before you deduct any point for not doing work in pandas:
+the data is obviously format for display purpose in excel, therefore it would be more reasonable to convert it to the format for which I desired in excel. For example, there are footnotes for some of the cells, so direcly reading it by pandas will result 'typos' as 'othersb' where 'b' is originally a footnote. Hence, I did all data processing in excel.</p>
+<p>The original data in excel:
+<img alt="Hi" src="/images/rawexcel.png"></p>
+<p>Cleaning the data solely in pandas is too annoying and incovinient, for example the code for which I used for processing the data for the grouped bar plot looks like:</p>
+<div class="highlight"><pre><span></span><code><span class="n">df2</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span><span class="s1">&#39;postdoc_expected_sal.xlsx&#39;</span><span class="p">,</span> <span class="n">header</span> <span class="o">=</span> <span class="mi">3</span><span class="p">)</span>
+<span class="n">df2</span> <span class="o">=</span> <span class="n">df2</span><span class="o">.</span><span class="n">iloc</span><span class="p">[[</span><span class="mi">3</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">11</span><span class="p">,</span><span class="mi">12</span><span class="p">,</span><span class="mi">16</span><span class="p">,</span><span class="mi">18</span><span class="p">,</span><span class="mi">19</span><span class="p">,</span><span class="mi">21</span><span class="p">]]</span>
+<span class="n">df_expsal_emp</span> <span class="o">=</span> <span class="n">df2</span><span class="p">[[</span><span class="s1">&#39;Field of study&#39;</span><span class="p">,</span> <span class="s1">&#39;Employment&#39;</span><span class="p">,</span> <span class="s1">&#39;Unnamed: 2&#39;</span><span class="p">]]</span>
+<span class="n">df_expsal_emp</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Field of study&#39;</span><span class="p">,</span> <span class="s1">&#39;Male&#39;</span><span class="p">,</span> <span class="s1">&#39;Female&#39;</span><span class="p">]</span>
+<span class="n">df_expsal_emp</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s1">&#39;Type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Employment&#39;</span>
+<span class="n">df_expsal_emp</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">melt</span><span class="p">(</span><span class="n">df_expsal_emp</span><span class="p">,</span> <span class="n">id_vars</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Field of study&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">])</span>
+<span class="n">df_expsal_emp</span><span class="p">[</span><span class="s1">&#39;Field of study&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_expsal_emp</span><span class="p">[</span><span class="s1">&#39;Field of study&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">({</span><span class="s1">&#39;Psychology and social sciences &#39;</span><span class="p">:</span><span class="s1">&#39;Psychology and social sciences&#39;</span><span class="p">,</span> <span class="s1">&#39;Other non-S&amp;E fieldsb&#39;</span><span class="p">:</span><span class="s1">&#39;Other non-S&amp;E fields&#39;</span><span class="p">})</span>
+<span class="n">df_expsal_study</span> <span class="o">=</span> <span class="n">df2</span><span class="p">[[</span><span class="s1">&#39;Field of study&#39;</span><span class="p">,</span> <span class="s1">&#39;Postdoctoral study&#39;</span><span class="p">,</span> <span class="s1">&#39;Unnamed: 4&#39;</span><span class="p">]]</span>
+<span class="n">df_expsal_study</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Field of study&#39;</span><span class="p">,</span> <span class="s1">&#39;Male&#39;</span><span class="p">,</span> <span class="s1">&#39;Female&#39;</span><span class="p">]</span>
+<span class="n">df_expsal_study</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s1">&#39;Type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Postdoctoral study&#39;</span>
+<span class="n">df_expsal_study</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">melt</span><span class="p">(</span><span class="n">df_expsal_study</span><span class="p">,</span> <span class="n">id_vars</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Field of study&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">])</span>
+<span class="n">df_expsal_study</span><span class="p">[</span><span class="s1">&#39;Field of study&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_expsal_study</span><span class="p">[</span><span class="s1">&#39;Field of study&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">({</span><span class="s1">&#39;Psychology and social sciences &#39;</span><span class="p">:</span><span class="s1">&#39;Psychology and social sciences&#39;</span><span class="p">,</span><span class="s1">&#39;Other non-S&amp;E fieldsb&#39;</span><span class="p">:</span><span class="s1">&#39;Other non-S&amp;E fields&#39;</span><span class="p">})</span>
+<span class="n">df3</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span><span class="s1">&#39;doc_median_year.xlsx&#39;</span><span class="p">,</span> <span class="n">header</span> <span class="o">=</span> <span class="mi">3</span><span class="p">)</span>
+<span class="n">df3</span> <span class="o">=</span> <span class="n">df3</span><span class="o">.</span><span class="n">iloc</span><span class="p">[[</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">]]</span>
+<span class="n">df3</span> <span class="o">=</span> <span class="n">df3</span><span class="o">.</span><span class="n">T</span>
+<span class="n">df3</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">df3</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">df3</span> <span class="o">=</span> <span class="n">df3</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">2</span><span class="p">:]</span>
+<span class="n">df3</span><span class="p">[</span><span class="s1">&#39;Years since entering doctoral programe&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df3</span><span class="o">.</span><span class="n">index</span>
+<span class="n">df3</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Male&#39;</span><span class="p">,</span> <span class="s1">&#39;Female&#39;</span><span class="p">,</span><span class="s1">&#39;Field of study&#39;</span><span class="p">]</span>
+<span class="n">df3</span><span class="p">[</span><span class="s1">&#39;Field of study&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df3</span><span class="p">[</span><span class="s1">&#39;Field of study&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">({</span><span class="s1">&#39;Otherb&#39;</span><span class="p">:</span><span class="s1">&#39;Other non-S&amp;E fields&#39;</span><span class="p">,</span> <span class="s1">&#39;Life sciencesa&#39;</span><span class="p">:</span><span class="s1">&#39;Life sciences&#39;</span><span class="p">})</span>
+<span class="n">df_median_grad</span> <span class="o">=</span> <span class="n">df3</span>
+<span class="n">df_median_grad</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s1">&#39;Type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Median Years to Graduate&#39;</span>
+<span class="n">df_median_grad</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">melt</span><span class="p">(</span><span class="n">df_median_grad</span><span class="p">,</span> <span class="n">id_vars</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Field of study&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">])</span>
+<span class="n">df_expsal</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df_expsal_study</span><span class="p">,</span> <span class="n">df_expsal_emp</span><span class="p">])</span>
+</code></pre></div>
+
+
+<p>I think one important thing is that we know how to process data wisely to save time.</p>
+<p>Therefore I just read in the pre-processed data, and it looks like:
+<img alt="Hi" src="/images/df3.png"></p>
+<p>The desired pie chart should look like: 
+<img alt="Hi" src="/images/plot3.png"></p>
+<p>from code</p>
+<div class="highlight"><pre><span></span><code><span class="n">fig</span> <span class="o">=</span> <span class="n">px</span><span class="o">.</span><span class="n">pie</span><span class="p">(</span><span class="n">filter_df</span><span class="p">,</span> <span class="n">values</span> <span class="o">=</span> <span class="n">filter_df</span><span class="p">[</span><span class="s1">&#39;Value&#39;</span><span class="p">],</span> <span class="n">names</span><span class="o">=</span><span class="n">filter_df</span><span class="p">[</span><span class="s1">&#39;Category&#39;</span><span class="p">],</span>
+             <span class="n">title</span> <span class="o">=</span> <span class="s1">&#39;Post-doctoral plans by type, field, and gender&#39;</span><span class="p">)</span>
+
+<span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div>
+
+
+<p>For this pie chart we will need three dropdowns: one filters gender, the second filters the type of indicator for post doctoral plan (for example, location or activity for job), and the third filters the field of study.</p>
+<div class="highlight"><pre><span></span><code><span class="n">dcc</span><span class="o">.</span><span class="n">Dropdown</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s1">&#39;gender3_dropdown&#39;</span><span class="p">,</span>
+             <span class="n">options</span><span class="o">=</span><span class="p">[{</span><span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="n">i</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="n">i</span><span class="p">}</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">df4</span><span class="p">[</span><span class="s1">&#39;Gender&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()],</span>
+             <span class="n">value</span> <span class="o">=</span> <span class="s1">&#39;Total&#39;</span><span class="p">)</span>
+
+<span class="n">dcc</span><span class="o">.</span><span class="n">Dropdown</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s1">&#39;field_dropdown&#39;</span><span class="p">,</span>
+             <span class="n">options</span><span class="o">=</span><span class="p">[{</span><span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="n">i</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="n">i</span><span class="p">}</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">df4</span><span class="p">[</span><span class="s1">&#39;Field of Study&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()],</span>
+             <span class="n">value</span> <span class="o">=</span> <span class="s1">&#39;Life sciences&#39;</span><span class="p">)</span>
+
+<span class="n">dcc</span><span class="o">.</span><span class="n">Dropdown</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s1">&#39;ind_dropdown&#39;</span><span class="p">,</span>
+             <span class="n">options</span><span class="o">=</span><span class="p">[{</span><span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="n">i</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="n">i</span><span class="p">}</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">df4</span><span class="p">[</span><span class="s1">&#39;Type&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()],</span>
+             <span class="n">value</span> <span class="o">=</span> <span class="s1">&#39;Postgraduation status&#39;</span><span class="p">)</span>
+</code></pre></div>
+
+
+<h2>Dashboard</h2>
+<p>Then I just need to integrate the plots and dropdown menus. Specifically, update of the plots by the dropdowns should be done by
+<code>@app.callback</code> following the specific output and input. Moreover, because this is not a very complicated dash app, I format the components directly by adding <code>style = {}</code> following the components, instead of using <code>css</code> formating.</p>
+<p>The complete code for the layout of the app:</p>
+<div class="highlight"><pre><span></span><code><span class="n">app</span><span class="o">.</span><span class="n">layout</span> <span class="o">=</span> <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">([</span> 
+    <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span><span class="n">children</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">html</span><span class="o">.</span><span class="n">H1</span><span class="p">(</span><span class="n">children</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Is there life after graduate school?&quot;</span><span class="p">],</span>
+                <span class="n">style</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;color&#39;</span><span class="p">:</span><span class="s1">&#39;#FFFFFF&#39;</span><span class="p">,</span>
+                         <span class="s1">&#39;font-size&#39;</span><span class="p">:</span> <span class="s1">&#39;48px&#39;</span><span class="p">,</span>
+                         <span class="s1">&#39;font-weight&#39;</span><span class="p">:</span> <span class="s1">&#39;bold&#39;</span><span class="p">,</span>
+                         <span class="s1">&#39;text-align&#39;</span><span class="p">:</span> <span class="s1">&#39;center&#39;</span><span class="p">}),</span>
+        <span class="n">html</span><span class="o">.</span><span class="n">P</span><span class="p">(</span><span class="n">children</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Analysis of doctorate recipients and post doctoral plans&quot;</span><span class="p">],</span>
+                <span class="n">style</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;color&#39;</span><span class="p">:</span><span class="s1">&#39;#CFCFCF&#39;</span><span class="p">,</span>
+                         <span class="s1">&#39;margin&#39;</span><span class="p">:</span> <span class="s1">&#39;4px auto&#39;</span><span class="p">,</span>
+                         <span class="s1">&#39;text-align&#39;</span><span class="p">:</span> <span class="s1">&#39;center&#39;</span><span class="p">}),</span>
+    <span class="p">],</span><span class="n">style</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;background-color&#39;</span><span class="p">:</span> <span class="s1">&#39;#222222&#39;</span><span class="p">,</span> 
+               <span class="s1">&#39;height&#39;</span><span class="p">:</span> <span class="s1">&#39;288px&#39;</span><span class="p">,</span> <span class="s1">&#39;padding&#39;</span><span class="p">:</span> <span class="s1">&#39;16px 0 0 0&#39;</span><span class="p">}),</span> <span class="c1"># end of header</span>
+
+    <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span>
+            <span class="n">children</span><span class="o">=</span><span class="p">[</span>
+                <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span>
+                    <span class="n">children</span><span class="o">=</span><span class="p">[</span>
+                        <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span><span class="n">children</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Gender&quot;</span><span class="p">],</span>
+                                 <span class="n">style</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;margin-bottom&#39;</span><span class="p">:</span> <span class="s1">&#39;6px&#39;</span><span class="p">,</span>
+                                          <span class="s1">&#39;font-weight&#39;</span><span class="p">:</span> <span class="s1">&#39;bold&#39;</span><span class="p">,</span>
+                                          <span class="s1">&#39;color&#39;</span><span class="p">:</span> <span class="s1">&#39;#079A82&#39;</span><span class="p">}),</span>
+                        <span class="n">dcc</span><span class="o">.</span><span class="n">Dropdown</span><span class="p">(</span>
+                            <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;gender1_dropdown&quot;</span><span class="p">,</span>
+                            <span class="n">options</span><span class="o">=</span><span class="p">[{</span><span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="n">i</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="n">i</span><span class="p">}</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">df1</span><span class="p">[</span><span class="s1">&#39;Gender&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()],</span>
+                            <span class="n">value</span> <span class="o">=</span> <span class="s1">&#39;Total&#39;</span><span class="p">),</span>
+                    <span class="p">],</span> <span class="n">style</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;width&#39;</span><span class="p">:</span> <span class="s1">&#39;40%&#39;</span><span class="p">,</span> <span class="s1">&#39;display&#39;</span><span class="p">:</span> <span class="s1">&#39;inline-block&#39;</span><span class="p">}),</span>
+            <span class="p">],</span><span class="n">style</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;height&#39;</span><span class="p">:</span> <span class="s1">&#39;100px&#39;</span><span class="p">,</span><span class="s1">&#39;width&#39;</span><span class="p">:</span> <span class="s1">&#39;912px&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;display&#39;</span><span class="p">:</span><span class="s1">&#39;flex&#39;</span><span class="p">,</span> 
+                       <span class="s1">&#39;justify-content&#39;</span><span class="p">:</span> <span class="s1">&#39;space-evenly&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;padding-top&#39;</span><span class="p">:</span> <span class="s1">&#39;24px&#39;</span><span class="p">,</span> <span class="s1">&#39;margin&#39;</span><span class="p">:</span> <span class="s1">&#39;-80px auto 0 auto&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;background-color&#39;</span><span class="p">:</span> <span class="s1">&#39;#FFFFFF&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;box-shadow&#39;</span><span class="p">:</span> <span class="s1">&#39;0 4px 6px 0 rgba(0, 0, 0, 0.18)&#39;</span><span class="p">,}),</span> <span class="c1"># end of plot1 dropdown</span>
+
+    <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span>
+    <span class="n">children</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span>
+        <span class="n">children</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">dcc</span><span class="o">.</span><span class="n">Graph</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s1">&#39;doc_recip&#39;</span><span class="p">)],</span>
+              <span class="n">style</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;margin-bottom&#39;</span><span class="p">:</span> <span class="s1">&#39;24px&#39;</span><span class="p">,</span> <span class="s1">&#39;box-shadow&#39;</span><span class="p">:</span> <span class="s1">&#39;0 4px 6px 0 rgba(0, 0, 0, 0.18)&#39;</span><span class="p">})</span>
+    <span class="p">]</span>
+             <span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;margin-right&#39;</span><span class="p">:</span> <span class="s1">&#39;auto&#39;</span><span class="p">,</span><span class="s1">&#39;margin-left&#39;</span><span class="p">:</span> <span class="s1">&#39;auto&#39;</span><span class="p">,</span>
+              <span class="s1">&#39;max-width&#39;</span><span class="p">:</span> <span class="s1">&#39;1024px&#39;</span><span class="p">,</span><span class="s1">&#39;padding-right&#39;</span><span class="p">:</span> <span class="s1">&#39;10px&#39;</span><span class="p">,</span>
+              <span class="s1">&#39;padding-left&#39;</span><span class="p">:</span> <span class="s1">&#39;10px&#39;</span><span class="p">,</span> <span class="s1">&#39;margin-top&#39;</span><span class="p">:</span> <span class="s1">&#39;32px&#39;</span><span class="p">}),</span> <span class="c1"># end of plot1</span>
+
+    <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span>
+            <span class="n">children</span><span class="o">=</span><span class="p">[</span>
+                 <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span>
+                    <span class="n">children</span><span class="o">=</span><span class="p">[</span>
+                        <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span><span class="n">children</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Gender&quot;</span><span class="p">],</span> <span class="n">style</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;margin-bottom&#39;</span><span class="p">:</span> <span class="s1">&#39;6px&#39;</span><span class="p">,</span>
+                                                               <span class="s1">&#39;font-weight&#39;</span><span class="p">:</span> <span class="s1">&#39;bold&#39;</span><span class="p">,</span> <span class="s1">&#39;color&#39;</span><span class="p">:</span> <span class="s1">&#39;#079A82&#39;</span><span class="p">}),</span>
+                        <span class="n">dcc</span><span class="o">.</span><span class="n">Dropdown</span><span class="p">(</span>
+                            <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;gender2_dropdown&quot;</span><span class="p">,</span>
+                            <span class="n">options</span><span class="o">=</span><span class="p">[{</span><span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="n">i</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="n">i</span><span class="p">}</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">df_median_grad</span><span class="p">[</span><span class="s1">&#39;variable&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()],</span>
+                            <span class="n">value</span> <span class="o">=</span> <span class="s1">&#39;Female&#39;</span><span class="p">)</span>
+                    <span class="p">],</span> <span class="n">style</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;width&#39;</span><span class="p">:</span> <span class="s1">&#39;30%&#39;</span><span class="p">,</span> <span class="s1">&#39;float&#39;</span><span class="p">:</span> <span class="s1">&#39;center&#39;</span><span class="p">}),</span>
+                <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span>
+                    <span class="n">children</span><span class="o">=</span><span class="p">[</span>
+                        <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span><span class="n">children</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Type of post-doc plan&quot;</span><span class="p">],</span> <span class="n">style</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;margin-bottom&#39;</span><span class="p">:</span> <span class="s1">&#39;6px&#39;</span><span class="p">,</span>
+                                                               <span class="s1">&#39;font-weight&#39;</span><span class="p">:</span> <span class="s1">&#39;bold&#39;</span><span class="p">,</span> <span class="s1">&#39;color&#39;</span><span class="p">:</span> <span class="s1">&#39;#079A82&#39;</span><span class="p">}),</span>
+                        <span class="n">dcc</span><span class="o">.</span><span class="n">Dropdown</span><span class="p">(</span>
+                            <span class="nb">id</span><span class="o">=</span><span class="s1">&#39;type1_dropdown&#39;</span><span class="p">,</span> 
+                            <span class="n">options</span><span class="o">=</span><span class="p">[{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Employment&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;Employment&quot;</span><span class="p">},</span>
+                                     <span class="p">{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Postdoctoral study&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;Postdoctoral study&quot;</span><span class="p">}],</span>
+                            <span class="n">value</span> <span class="o">=</span> <span class="s1">&#39;Employment&#39;</span><span class="p">)</span>
+                    <span class="p">],</span> <span class="n">style</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;width&#39;</span><span class="p">:</span> <span class="s1">&#39;30%&#39;</span><span class="p">,</span> <span class="s1">&#39;display&#39;</span><span class="p">:</span> <span class="s1">&#39;inline-block&#39;</span><span class="p">}),</span>
+
+
+            <span class="p">],</span><span class="n">style</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;height&#39;</span><span class="p">:</span> <span class="s1">&#39;100px&#39;</span><span class="p">,</span><span class="s1">&#39;width&#39;</span><span class="p">:</span> <span class="s1">&#39;912px&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;display&#39;</span><span class="p">:</span><span class="s1">&#39;flex&#39;</span><span class="p">,</span> <span class="s1">&#39;justify-content&#39;</span><span class="p">:</span> <span class="s1">&#39;space-evenly&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;padding-top&#39;</span><span class="p">:</span> <span class="s1">&#39;24px&#39;</span><span class="p">,</span> <span class="s1">&#39;margin&#39;</span><span class="p">:</span> <span class="s1">&#39;50px auto 0 auto&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;background-color&#39;</span><span class="p">:</span> <span class="s1">&#39;#FFFFFF&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;box-shadow&#39;</span><span class="p">:</span> <span class="s1">&#39;0 4px 6px 0 rgba(0, 0, 0, 0.18)&#39;</span><span class="p">,}),</span> <span class="c1"># end of plot2 dropdown</span>
+
+    <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span>
+    <span class="n">children</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span>
+        <span class="n">children</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">dcc</span><span class="o">.</span><span class="n">Graph</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s1">&#39;year_sal&#39;</span><span class="p">)],</span>
+              <span class="n">style</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;margin-bottom&#39;</span><span class="p">:</span> <span class="s1">&#39;24px&#39;</span><span class="p">,</span> <span class="s1">&#39;box-shadow&#39;</span><span class="p">:</span> <span class="s1">&#39;0 4px 6px 0 rgba(0, 0, 0, 0.18)&#39;</span><span class="p">})</span>
+    <span class="p">]</span>
+             <span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;margin-right&#39;</span><span class="p">:</span> <span class="s1">&#39;auto&#39;</span><span class="p">,</span><span class="s1">&#39;margin-left&#39;</span><span class="p">:</span> <span class="s1">&#39;auto&#39;</span><span class="p">,</span>
+              <span class="s1">&#39;max-width&#39;</span><span class="p">:</span> <span class="s1">&#39;1024px&#39;</span><span class="p">,</span><span class="s1">&#39;padding-right&#39;</span><span class="p">:</span> <span class="s1">&#39;10px&#39;</span><span class="p">,</span>
+              <span class="s1">&#39;padding-left&#39;</span><span class="p">:</span> <span class="s1">&#39;10px&#39;</span><span class="p">,</span> <span class="s1">&#39;margin-top&#39;</span><span class="p">:</span> <span class="s1">&#39;32px&#39;</span><span class="p">}),</span> <span class="c1"># end of plot2</span>
+
+    <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span>
+            <span class="n">children</span><span class="o">=</span><span class="p">[</span>
+                <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span>
+                    <span class="n">children</span><span class="o">=</span><span class="p">[</span>
+                        <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span><span class="n">children</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Gender&quot;</span><span class="p">],</span> <span class="n">style</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;margin-bottom&#39;</span><span class="p">:</span> <span class="s1">&#39;6px&#39;</span><span class="p">,</span>
+                                                               <span class="s1">&#39;font-weight&#39;</span><span class="p">:</span> <span class="s1">&#39;bold&#39;</span><span class="p">,</span> <span class="s1">&#39;color&#39;</span><span class="p">:</span> <span class="s1">&#39;#079A82&#39;</span><span class="p">}),</span>
+                        <span class="n">dcc</span><span class="o">.</span><span class="n">Dropdown</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s1">&#39;gender3_dropdown&#39;</span><span class="p">,</span> 
+                                     <span class="n">options</span><span class="o">=</span><span class="p">[{</span><span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="n">i</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="n">i</span><span class="p">}</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">df4</span><span class="p">[</span><span class="s1">&#39;Gender&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()],</span>
+                                     <span class="n">value</span> <span class="o">=</span> <span class="s1">&#39;Total&#39;</span><span class="p">)</span>
+                    <span class="p">],</span> <span class="n">style</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;width&#39;</span><span class="p">:</span> <span class="s1">&#39;30%&#39;</span><span class="p">,</span> <span class="s1">&#39;float&#39;</span><span class="p">:</span> <span class="s1">&#39;center&#39;</span><span class="p">}),</span>
+                <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span>
+                    <span class="n">children</span><span class="o">=</span><span class="p">[</span>
+                        <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span><span class="n">children</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Field of study&quot;</span><span class="p">],</span> 
+                                 <span class="n">style</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;margin-bottom&#39;</span><span class="p">:</span> <span class="s1">&#39;6px&#39;</span><span class="p">,</span> <span class="s1">&#39;font-weight&#39;</span><span class="p">:</span> <span class="s1">&#39;bold&#39;</span><span class="p">,</span> <span class="s1">&#39;color&#39;</span><span class="p">:</span> <span class="s1">&#39;#079A82&#39;</span><span class="p">}),</span>
+                        <span class="n">dcc</span><span class="o">.</span><span class="n">Dropdown</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s1">&#39;field_dropdown&#39;</span><span class="p">,</span> 
+                                     <span class="n">options</span><span class="o">=</span><span class="p">[{</span><span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="n">i</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="n">i</span><span class="p">}</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">df4</span><span class="p">[</span><span class="s1">&#39;Field of Study&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()],</span>
+                                     <span class="n">value</span> <span class="o">=</span> <span class="s1">&#39;Life sciences&#39;</span><span class="p">)</span>
+                    <span class="p">],</span> <span class="n">style</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;width&#39;</span><span class="p">:</span> <span class="s1">&#39;30%&#39;</span><span class="p">,</span> <span class="s1">&#39;display&#39;</span><span class="p">:</span> <span class="s1">&#39;inline-block&#39;</span><span class="p">}),</span>
+
+                <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span>
+                    <span class="n">children</span><span class="o">=</span><span class="p">[</span>
+                        <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span><span class="n">children</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Indicator of postdoctoral plan&quot;</span><span class="p">],</span> 
+                                 <span class="n">style</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;margin-bottom&#39;</span><span class="p">:</span> <span class="s1">&#39;6px&#39;</span><span class="p">,</span> <span class="s1">&#39;font-weight&#39;</span><span class="p">:</span> <span class="s1">&#39;bold&#39;</span><span class="p">,</span> <span class="s1">&#39;color&#39;</span><span class="p">:</span> <span class="s1">&#39;#079A82&#39;</span><span class="p">}),</span>
+                        <span class="n">dcc</span><span class="o">.</span><span class="n">Dropdown</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s1">&#39;ind_dropdown&#39;</span><span class="p">,</span> 
+                                     <span class="n">options</span><span class="o">=</span><span class="p">[{</span><span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="n">i</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="n">i</span><span class="p">}</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">df4</span><span class="p">[</span><span class="s1">&#39;Type&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()],</span>
+                                     <span class="n">value</span> <span class="o">=</span> <span class="s1">&#39;Postgraduation status&#39;</span><span class="p">)</span>
+                    <span class="p">],</span> <span class="n">style</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;width&#39;</span><span class="p">:</span> <span class="s1">&#39;30%&#39;</span><span class="p">,</span> <span class="s1">&#39;display&#39;</span><span class="p">:</span> <span class="s1">&#39;inline-block&#39;</span><span class="p">}),</span>
+
+            <span class="p">],</span><span class="n">style</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;height&#39;</span><span class="p">:</span> <span class="s1">&#39;100px&#39;</span><span class="p">,</span><span class="s1">&#39;width&#39;</span><span class="p">:</span> <span class="s1">&#39;912px&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;display&#39;</span><span class="p">:</span><span class="s1">&#39;flex&#39;</span><span class="p">,</span> <span class="s1">&#39;justify-content&#39;</span><span class="p">:</span> <span class="s1">&#39;space-evenly&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;padding-top&#39;</span><span class="p">:</span> <span class="s1">&#39;24px&#39;</span><span class="p">,</span> <span class="s1">&#39;margin&#39;</span><span class="p">:</span> <span class="s1">&#39;50px auto 0 auto&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;background-color&#39;</span><span class="p">:</span> <span class="s1">&#39;#FFFFFF&#39;</span><span class="p">,</span>
+                       <span class="s1">&#39;box-shadow&#39;</span><span class="p">:</span> <span class="s1">&#39;0 4px 6px 0 rgba(0, 0, 0, 0.18)&#39;</span><span class="p">,}),</span> <span class="c1"># end of plot3 dropdown</span>
+
+    <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span>
+    <span class="n">children</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span>
+        <span class="n">children</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">dcc</span><span class="o">.</span><span class="n">Graph</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s1">&#39;post_plan&#39;</span><span class="p">)],</span>
+              <span class="n">style</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;margin-bottom&#39;</span><span class="p">:</span> <span class="s1">&#39;24px&#39;</span><span class="p">,</span> <span class="s1">&#39;box-shadow&#39;</span><span class="p">:</span> <span class="s1">&#39;0 4px 6px 0 rgba(0, 0, 0, 0.18)&#39;</span><span class="p">})</span>
+    <span class="p">],</span> <span class="n">style</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;margin-right&#39;</span><span class="p">:</span> <span class="s1">&#39;auto&#39;</span><span class="p">,</span><span class="s1">&#39;margin-left&#39;</span><span class="p">:</span> <span class="s1">&#39;auto&#39;</span><span class="p">,</span>
+              <span class="s1">&#39;max-width&#39;</span><span class="p">:</span> <span class="s1">&#39;1024px&#39;</span><span class="p">,</span><span class="s1">&#39;padding-right&#39;</span><span class="p">:</span> <span class="s1">&#39;10px&#39;</span><span class="p">,</span>
+              <span class="s1">&#39;padding-left&#39;</span><span class="p">:</span> <span class="s1">&#39;10px&#39;</span><span class="p">,</span> <span class="s1">&#39;margin-top&#39;</span><span class="p">:</span> <span class="s1">&#39;32px&#39;</span><span class="p">}),</span> <span class="c1"># end of plot3</span>
+
+
+<span class="p">])</span>
+<span class="c1"># end of app layout</span>
+
+
+<span class="nd">@app</span><span class="o">.</span><span class="n">callback</span><span class="p">(</span>
+    <span class="n">dash</span><span class="o">.</span><span class="n">dependencies</span><span class="o">.</span><span class="n">Output</span><span class="p">(</span><span class="s1">&#39;doc_recip&#39;</span><span class="p">,</span> <span class="s1">&#39;figure&#39;</span><span class="p">),</span>
+    <span class="n">Input</span><span class="p">(</span><span class="n">component_id</span><span class="o">=</span><span class="s1">&#39;gender1_dropdown&#39;</span><span class="p">,</span> <span class="n">component_property</span><span class="o">=</span><span class="s1">&#39;value&#39;</span><span class="p">))</span>
+<span class="k">def</span> <span class="nf">plot_recip</span><span class="p">(</span><span class="n">selected_gender</span><span class="p">):</span>
+    <span class="n">filter_df</span> <span class="o">=</span> <span class="n">df1</span><span class="p">[</span><span class="n">df1</span><span class="p">[</span><span class="s1">&#39;Gender&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">selected_gender</span><span class="p">]</span>
+    <span class="n">fig</span> <span class="o">=</span> <span class="n">px</span><span class="o">.</span><span class="n">line</span><span class="p">(</span><span class="n">filter_df</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="s1">&#39;variable&#39;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s1">&#39;value&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;Major field of study&#39;</span><span class="p">,</span>
+       <span class="n">labels</span><span class="o">=</span><span class="p">{</span>
+                     <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;number of degree awarded&quot;</span><span class="p">,</span>
+                     <span class="s2">&quot;variable&quot;</span><span class="p">:</span> <span class="s2">&quot;year&quot;</span>
+                 <span class="p">},</span>
+        <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Number of Doctoral Degree Awarded&quot;</span><span class="p">,</span>
+        <span class="n">template</span><span class="o">=</span><span class="s1">&#39;plotly_white&#39;</span><span class="p">)</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">update_layout</span><span class="p">(</span><span class="n">legend</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">font</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">10</span><span class="p">),</span> 
+                                  <span class="n">orientation</span><span class="o">=</span><span class="s2">&quot;h&quot;</span><span class="p">,</span>
+                                  <span class="n">yanchor</span><span class="o">=</span><span class="s2">&quot;top&quot;</span><span class="p">,</span> <span class="n">y</span><span class="o">=-</span><span class="mf">0.25</span><span class="p">,</span>
+                                  <span class="n">xanchor</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">fig</span>
+
+
+<span class="nd">@app</span><span class="o">.</span><span class="n">callback</span><span class="p">(</span>
+    <span class="n">dash</span><span class="o">.</span><span class="n">dependencies</span><span class="o">.</span><span class="n">Output</span><span class="p">(</span><span class="s1">&#39;year_sal&#39;</span><span class="p">,</span> <span class="s1">&#39;figure&#39;</span><span class="p">),</span>
+    <span class="n">Input</span><span class="p">(</span><span class="n">component_id</span><span class="o">=</span><span class="s1">&#39;gender2_dropdown&#39;</span><span class="p">,</span> <span class="n">component_property</span><span class="o">=</span><span class="s1">&#39;value&#39;</span><span class="p">),</span>
+    <span class="n">Input</span><span class="p">(</span><span class="n">component_id</span><span class="o">=</span><span class="s1">&#39;type1_dropdown&#39;</span><span class="p">,</span> <span class="n">component_property</span><span class="o">=</span><span class="s1">&#39;value&#39;</span><span class="p">))</span>
+
+<span class="k">def</span> <span class="nf">plot_year_sal</span><span class="p">(</span><span class="n">gender2_dropdown</span><span class="p">,</span> <span class="n">type1_dropdown</span><span class="p">):</span>
+    <span class="n">filter_year</span> <span class="o">=</span> <span class="n">df_median_grad</span><span class="p">[</span><span class="n">df_median_grad</span><span class="p">[</span><span class="s1">&#39;variable&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">gender2_dropdown</span><span class="p">]</span>
+    <span class="n">filter_expsal</span> <span class="o">=</span> <span class="n">df_expsal</span><span class="p">[(</span><span class="n">df_expsal</span><span class="p">[</span><span class="s1">&#39;variable&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">gender2_dropdown</span><span class="p">)</span><span class="o">&amp;</span><span class="p">(</span><span class="n">df_expsal</span><span class="p">[</span><span class="s1">&#39;Type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">type1_dropdown</span><span class="p">)]</span>
+
+    <span class="n">fig</span> <span class="o">=</span> <span class="n">make_subplots</span><span class="p">(</span><span class="n">specs</span><span class="o">=</span><span class="p">[[{</span><span class="s2">&quot;secondary_y&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}]])</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">add_trace</span><span class="p">(</span>
+    <span class="n">go</span><span class="o">.</span><span class="n">Bar</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">filter_expsal</span><span class="p">[</span><span class="s1">&#39;Field of study&#39;</span><span class="p">],</span> 
+           <span class="n">y</span><span class="o">=</span><span class="n">filter_expsal</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">],</span>
+           <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;median epected salary&#39;</span><span class="p">,</span>
+          <span class="n">offsetgroup</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+          <span class="n">secondary_y</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">add_trace</span><span class="p">(</span>
+    <span class="n">go</span><span class="o">.</span><span class="n">Bar</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">filter_year</span><span class="p">[</span><span class="s1">&#39;Field of study&#39;</span><span class="p">],</span> 
+           <span class="n">y</span><span class="o">=</span><span class="n">filter_year</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">],</span>
+           <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;median year to degree&#39;</span><span class="p">,</span>
+          <span class="n">offsetgroup</span><span class="o">=</span><span class="mi">2</span><span class="p">),</span>
+          <span class="n">secondary_y</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># Add figure title</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">update_layout</span><span class="p">(</span>
+    <span class="n">title_text</span><span class="o">=</span><span class="s2">&quot;Median expected salary and median years to doctorates degree, 2017&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Set x-axis title</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">update_xaxes</span><span class="p">(</span><span class="n">title_text</span><span class="o">=</span><span class="s1">&#39;Field of Study&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Set y-axes titles</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">update_yaxes</span><span class="p">(</span><span class="n">title_text</span><span class="o">=</span><span class="s2">&quot;expected salary&quot;</span><span class="p">,</span> <span class="n">secondary_y</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">update_yaxes</span><span class="p">(</span><span class="n">title_text</span><span class="o">=</span><span class="s2">&quot;years to degree&quot;</span><span class="p">,</span> <span class="n">secondary_y</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">return</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span>
+
+<span class="nd">@app</span><span class="o">.</span><span class="n">callback</span><span class="p">(</span>
+    <span class="n">dash</span><span class="o">.</span><span class="n">dependencies</span><span class="o">.</span><span class="n">Output</span><span class="p">(</span><span class="s1">&#39;post_plan&#39;</span><span class="p">,</span> <span class="s1">&#39;figure&#39;</span><span class="p">),</span>
+    <span class="n">Input</span><span class="p">(</span><span class="n">component_id</span><span class="o">=</span><span class="s1">&#39;gender3_dropdown&#39;</span><span class="p">,</span> <span class="n">component_property</span><span class="o">=</span><span class="s1">&#39;value&#39;</span><span class="p">),</span>
+    <span class="n">Input</span><span class="p">(</span><span class="n">component_id</span><span class="o">=</span><span class="s1">&#39;ind_dropdown&#39;</span><span class="p">,</span> <span class="n">component_property</span><span class="o">=</span><span class="s1">&#39;value&#39;</span><span class="p">),</span>
+    <span class="n">Input</span><span class="p">(</span><span class="n">component_id</span><span class="o">=</span><span class="s1">&#39;field_dropdown&#39;</span><span class="p">,</span> <span class="n">component_property</span><span class="o">=</span><span class="s1">&#39;value&#39;</span><span class="p">))</span>
+
+<span class="k">def</span> <span class="nf">plot_year_sal</span><span class="p">(</span><span class="n">gender3_dropdown</span><span class="p">,</span> <span class="n">ind_dropdown</span><span class="p">,</span> <span class="n">field_dropdown</span><span class="p">):</span>
+    <span class="n">filter_df</span> <span class="o">=</span> <span class="n">df4</span><span class="p">[(</span><span class="n">df4</span><span class="p">[</span><span class="s1">&#39;Field of Study&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">field_dropdown</span><span class="p">)</span> <span class="o">&amp;</span><span class="p">(</span><span class="n">df4</span><span class="p">[</span><span class="s1">&#39;Gender&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">gender3_dropdown</span><span class="p">)</span><span class="o">&amp;</span><span class="p">(</span><span class="n">df4</span><span class="p">[</span><span class="s1">&#39;Type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">ind_dropdown</span><span class="p">)]</span>
+
+    <span class="n">fig</span> <span class="o">=</span> <span class="n">px</span><span class="o">.</span><span class="n">pie</span><span class="p">(</span><span class="n">filter_df</span><span class="p">,</span> <span class="n">values</span> <span class="o">=</span> <span class="n">filter_df</span><span class="p">[</span><span class="s1">&#39;Value&#39;</span><span class="p">],</span> <span class="n">names</span><span class="o">=</span><span class="n">filter_df</span><span class="p">[</span><span class="s1">&#39;Category&#39;</span><span class="p">],</span>
+                <span class="n">title</span> <span class="o">=</span> <span class="s1">&#39;Post-doctoral plans by type, field, and gender&#39;</span><span class="p">)</span>
+
+    <span class="k">return</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span>
+</code></pre></div>
+
+
+<p>The final dashboard looks like:
+<img alt="Hi" src="/images/dash1.png">
+<img alt="Hi" src="/images/dash2.png">
+<img alt="Hi" src="/images/dash3.png"></p>                </article>
+            </aside><!-- /#featured -->
+                <section id="content" class="body">
+                    <h1>Other articles</h1>
+                    <hr />
+                    <ol id="posts-list" class="hfeed">
+
+            <li><article class="hentry">
+                <header>
+                    <h1><a href="/homework-3.html" rel="bookmark"
+                           title="Permalink to Homework 3">Homework 3</a></h1>
+                </header>
+
+                <div class="entry-content">
 <footer class="post-info">
         <abbr class="published" title="2021-09-30T00:00:00-04:00">
                 Published: Thu 30 September 2021
@@ -31,7 +412,7 @@
         </address>
 <p>In <a href="/category/misc.html">misc</a>.</p>
 
-</footer><!-- /.post-info --><h1>Creating effective visualizations using best practices</h1>
+</footer><!-- /.post-info -->                <h1>Creating effective visualizations using best practices</h1>
 <p>Using <a href="https://github.com/cliburn/bios-823-2021/blob/main/homework/assignments.md">https://github.com/cliburn/bios-823-2021/blob/main/homework/assignments.md</a></p>
 <p><strong>Outline of this post</strong>:</p>
 <ul>
@@ -40,203 +421,10 @@
 <li><a href="#section3">Boxplot using Seaborn</a></li>
 </ul>
 <h2>Scatter Plot<a name="section1"></a></h2>
-<p>Because the data is time series data, therefore it's always useful to take a first look at the trend throughout the years. </p>
-<p>I use <code>Plotly</code> to plot two scatter lines, which allows user to select the two countries they want to compare.</p>
-<p>The first reason I chose plotly is that plotly allows intreactive filtering of the data by widgets. Moreover, the 'compare data on hover' feature is especially useful to see the exact numbers of the plots by moving through the lines.</p>
-<p><img alt="Hi" src="/images/scatter.png"></p>
-<p>First read the data</p>
-<div class="highlight"><pre><span></span><code><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;malaria_deaths_age.txt&#39;</span><span class="p">)</span>
-<span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span> <span class="o">=</span> <span class="s1">&#39;Unnamed: 0&#39;</span><span class="p">)</span>
-
-<span class="c1"># aggregate all age groups into &#39;All age&#39;</span>
-<span class="n">age_agg</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s1">&#39;entity&#39;</span><span class="p">,</span> <span class="s1">&#39;year&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">agg</span><span class="p">(</span><span class="s1">&#39;sum&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
-<span class="n">age_agg</span><span class="p">[</span><span class="s1">&#39;age_group&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;All age&#39;</span>
-<span class="n">df1</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df</span><span class="p">,</span> <span class="n">age_agg</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-</code></pre></div>
-
-
-<p>The code to define the widgets:</p>
-<div class="highlight"><pre><span></span><code><span class="n">age</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span class="n">Dropdown</span><span class="p">(</span>
-    <span class="n">options</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">df1</span><span class="p">[</span><span class="s1">&#39;age_group&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()),</span>
-    <span class="n">value</span><span class="o">=</span><span class="s1">&#39;All age&#39;</span><span class="p">,</span>
-    <span class="n">description</span><span class="o">=</span><span class="s1">&#39;Age Group:&#39;</span><span class="p">,</span>
-<span class="p">)</span>
-
-<span class="n">entity1</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span class="n">Dropdown</span><span class="p">(</span>
-    <span class="n">options</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">df1</span><span class="p">[</span><span class="s1">&#39;entity&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()),</span>
-    <span class="n">value</span><span class="o">=</span><span class="s1">&#39;Afghanistan&#39;</span><span class="p">,</span>
-    <span class="n">description</span><span class="o">=</span><span class="s1">&#39;Country1:&#39;</span><span class="p">,</span>
-    <span class="n">continuous_update</span><span class="o">=</span><span class="kc">True</span>
-<span class="p">)</span>
-
-<span class="n">entity2</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span class="n">Dropdown</span><span class="p">(</span>
-    <span class="n">options</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">df1</span><span class="p">[</span><span class="s1">&#39;entity&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()),</span>
-    <span class="n">value</span><span class="o">=</span><span class="s1">&#39;Zimbabwe&#39;</span><span class="p">,</span>
-    <span class="n">description</span><span class="o">=</span><span class="s1">&#39;Country2:&#39;</span><span class="p">,</span>
-    <span class="n">continuous_update</span><span class="o">=</span><span class="kc">True</span>
-<span class="p">)</span>
-
-<span class="n">container</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span class="n">HBox</span><span class="p">([</span><span class="n">entity1</span><span class="p">,</span> <span class="n">entity2</span><span class="p">])</span>
-</code></pre></div>
-
-
-<p>Then create the default plot:</p>
-<div class="highlight"><pre><span></span><code><span class="n">trace1</span> <span class="o">=</span> <span class="n">go</span><span class="o">.</span><span class="n">Scatter</span><span class="p">(</span><span class="n">x</span><span class="o">=</span> <span class="n">df1</span><span class="p">[(</span><span class="n">df1</span><span class="p">[</span><span class="s1">&#39;entity&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">entity1</span><span class="o">.</span><span class="n">value</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">df1</span><span class="p">[</span><span class="s1">&#39;age_group&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">age</span><span class="o">.</span><span class="n">value</span><span class="p">)][</span><span class="s1">&#39;year&#39;</span><span class="p">],</span> 
-                    <span class="n">y</span> <span class="o">=</span> <span class="n">df1</span><span class="p">[(</span><span class="n">df1</span><span class="p">[</span><span class="s1">&#39;entity&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">entity1</span><span class="o">.</span><span class="n">value</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">df1</span><span class="p">[</span><span class="s1">&#39;age_group&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">age</span><span class="o">.</span><span class="n">value</span><span class="p">)][</span><span class="s1">&#39;deaths&#39;</span><span class="p">],</span> 
-                    <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;Country1&#39;</span><span class="p">)</span>
-<span class="n">trace2</span> <span class="o">=</span> <span class="n">go</span><span class="o">.</span><span class="n">Scatter</span><span class="p">(</span><span class="n">x</span><span class="o">=</span> <span class="n">df1</span><span class="p">[(</span><span class="n">df1</span><span class="p">[</span><span class="s1">&#39;entity&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">entity2</span><span class="o">.</span><span class="n">value</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">df1</span><span class="p">[</span><span class="s1">&#39;age_group&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">age</span><span class="o">.</span><span class="n">value</span><span class="p">)][</span><span class="s1">&#39;year&#39;</span><span class="p">],</span> 
-                    <span class="n">y</span> <span class="o">=</span> <span class="n">df1</span><span class="p">[(</span><span class="n">df1</span><span class="p">[</span><span class="s1">&#39;entity&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">entity2</span><span class="o">.</span><span class="n">value</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">df1</span><span class="p">[</span><span class="s1">&#39;age_group&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">age</span><span class="o">.</span><span class="n">value</span><span class="p">)][</span><span class="s1">&#39;deaths&#39;</span><span class="p">],</span> 
-                    <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;Country2&#39;</span><span class="p">)</span>
-<span class="n">g</span> <span class="o">=</span> <span class="n">go</span><span class="o">.</span><span class="n">FigureWidget</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="p">[</span><span class="n">trace1</span><span class="p">,</span> <span class="n">trace2</span><span class="p">],</span>
-                    <span class="n">layout</span><span class="o">=</span><span class="n">go</span><span class="o">.</span><span class="n">Layout</span><span class="p">(</span>
-                        <span class="n">title</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
-                            <span class="n">text</span><span class="o">=</span><span class="s1">&#39; Malaria deaths per 100,000 people across time&#39;</span>
-                        <span class="p">),</span>
-                        <span class="n">xaxis_range</span><span class="o">=</span><span class="p">[</span><span class="nb">min</span><span class="p">(</span><span class="n">df1</span><span class="p">[</span><span class="s1">&#39;year&#39;</span><span class="p">]),</span> <span class="nb">max</span><span class="p">(</span><span class="n">df1</span><span class="p">[</span><span class="s1">&#39;year&#39;</span><span class="p">])],</span>
-                        <span class="n">template</span><span class="o">=</span> <span class="s1">&#39;seaborn&#39;</span>
-                    <span class="p">))</span>
-</code></pre></div>
-
-
-<p>and define the function to update the dataset used for plotting by the interactive input</p>
-<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">response</span><span class="p">(</span><span class="n">change</span><span class="p">):</span>
-    <span class="n">filter_list1</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="ow">and</span> <span class="n">j</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span>
-                    <span class="nb">zip</span><span class="p">(</span><span class="n">df1</span><span class="p">[</span><span class="s1">&#39;entity&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">entity1</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">df1</span><span class="p">[</span><span class="s1">&#39;age_group&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">age</span><span class="o">.</span><span class="n">value</span><span class="p">)]</span>
-    <span class="n">temp_df1</span> <span class="o">=</span> <span class="n">df1</span><span class="p">[</span><span class="n">filter_list1</span><span class="p">]</span>
-    <span class="n">filter_list2</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="ow">and</span> <span class="n">j</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span>
-                    <span class="nb">zip</span><span class="p">(</span><span class="n">df1</span><span class="p">[</span><span class="s1">&#39;entity&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">entity2</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">df1</span><span class="p">[</span><span class="s1">&#39;age_group&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">age</span><span class="o">.</span><span class="n">value</span><span class="p">)]</span>
-    <span class="n">temp_df2</span> <span class="o">=</span> <span class="n">df1</span><span class="p">[</span><span class="n">filter_list2</span><span class="p">]</span>
-
-    <span class="k">with</span> <span class="n">g</span><span class="o">.</span><span class="n">batch_update</span><span class="p">():</span>
-        <span class="n">g</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">temp_df1</span><span class="p">[</span><span class="s1">&#39;year&#39;</span><span class="p">]</span>
-        <span class="n">g</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">temp_df1</span><span class="p">[</span><span class="s1">&#39;deaths&#39;</span><span class="p">]</span>
-        <span class="n">g</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">temp_df2</span><span class="p">[</span><span class="s1">&#39;year&#39;</span><span class="p">]</span>
-        <span class="n">g</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">temp_df2</span><span class="p">[</span><span class="s1">&#39;deaths&#39;</span><span class="p">]</span>
-        <span class="n">g</span><span class="o">.</span><span class="n">layout</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="s1">&#39;Year&#39;</span>
-        <span class="n">g</span><span class="o">.</span><span class="n">layout</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="s1">&#39;Number of Deaths&#39;</span>
-
-
-<span class="n">entity1</span><span class="o">.</span><span class="n">observe</span><span class="p">(</span><span class="n">response</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="s2">&quot;value&quot;</span><span class="p">)</span>
-<span class="n">age</span><span class="o">.</span><span class="n">observe</span><span class="p">(</span><span class="n">response</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="s2">&quot;value&quot;</span><span class="p">)</span>
-<span class="n">entity2</span><span class="o">.</span><span class="n">observe</span><span class="p">(</span><span class="n">response</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="s2">&quot;value&quot;</span><span class="p">)</span>
-</code></pre></div>
-
-
-<p>Finally, update the plot</p>
-<div class="highlight"><pre><span></span><code><span class="n">container2</span> <span class="o">=</span> <span class="n">widgets</span><span class="o">.</span><span class="n">HBox</span><span class="p">([</span><span class="n">age</span><span class="p">])</span>
-<span class="n">widgets</span><span class="o">.</span><span class="n">VBox</span><span class="p">([</span><span class="n">container2</span><span class="p">,</span>
-              <span class="n">container</span><span class="p">,</span>
-              <span class="n">g</span><span class="p">])</span>
-</code></pre></div>
-
-
-<h2>Dot Plot (Bubble Plot)<a name="section2"></a></h2>
-<p>I use plotly again because it can plot 'animated' graph conviniently by slider by looking at the documentation <a href="https://plotly.com/python/sliders/">https://plotly.com/python/sliders/</a>. </p>
-<p>The second plot I made demonstrate how gdp and deaths number evolves by time (labelled by continent).
-<img alt="Hi" src="/images/dot.png"></p>
-<p>The data of population is from United Nations, Department of Economic and Social Affairs. Because the exact population is only updated to the year 2010, and therefore I only use the data from <code>alaria_deaths.csv</code> up to 2010. The data of GDP is from worldbank.org.</p>
-<p>Read the data of number of death of malaria and the mapping table of country code and continent.</p>
-<div class="highlight"><pre><span></span><code><span class="n">deaths</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;malaria_deaths.csv&#39;</span><span class="p">)</span>
-<span class="n">deaths</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;entity&#39;</span><span class="p">,</span> <span class="s1">&#39;country code&#39;</span><span class="p">,</span> <span class="s1">&#39;year&#39;</span><span class="p">,</span> <span class="s1">&#39;deaths&#39;</span><span class="p">]</span>
-
-<span class="n">codes</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;country_code.csv&#39;</span><span class="p">)</span>
-<span class="n">codes</span> <span class="o">=</span> <span class="n">codes</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">+</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">+</span><span class="p">[</span><span class="mi">5</span><span class="p">]]</span>
-<span class="c1"># standarize variable names</span>
-<span class="n">codes</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;continent&#39;</span><span class="p">,</span> <span class="s1">&#39;entity&#39;</span><span class="p">,</span> <span class="s1">&#39;country code&#39;</span><span class="p">,</span> <span class="s1">&#39;numeric code&#39;</span><span class="p">]</span>
-</code></pre></div>
-
-
-<p>Then read, standarize, and merge the population and GDP data by either country code or numeric country code.</p>
-<div class="highlight"><pre><span></span><code><span class="c1"># read population data</span>
-<span class="n">pop</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span><span class="s1">&#39;WPP2010_DB2_F01_TOTAL_POPULATION_BOTH_SEXES.XLS&#39;</span><span class="p">,</span> <span class="n">header</span> <span class="o">=</span> <span class="mi">16</span><span class="p">)</span>
-<span class="n">pop</span> <span class="o">=</span> <span class="n">pop</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">9</span><span class="p">)))</span>
-<span class="n">pop</span> <span class="o">=</span> <span class="n">pop</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Index&#39;</span><span class="p">,</span> <span class="s1">&#39;Variant&#39;</span><span class="p">,</span> <span class="s1">&#39;Notes&#39;</span><span class="p">])</span>
-<span class="n">pop</span> <span class="o">=</span> <span class="n">pop</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:</span> <span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="mi">21</span><span class="p">,</span> <span class="mi">0</span><span class="p">))]</span>
-<span class="n">pop</span> <span class="o">=</span> <span class="n">pop</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;Major area, region, country or area&#39;</span><span class="p">:</span><span class="s1">&#39;entity&#39;</span><span class="p">})</span>
-<span class="n">pop</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">melt</span><span class="p">(</span><span class="n">pop</span><span class="p">,</span> <span class="n">id_vars</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;entity&#39;</span><span class="p">,</span> <span class="s1">&#39;Country code&#39;</span><span class="p">])</span>
-<span class="n">pop</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;entity&#39;</span><span class="p">,</span> <span class="s1">&#39;numeric code&#39;</span><span class="p">,</span> <span class="s1">&#39;year&#39;</span><span class="p">,</span> <span class="s1">&#39;population&#39;</span><span class="p">]</span>
-<span class="n">pop</span><span class="p">[</span><span class="s1">&#39;year&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">pop</span><span class="p">[</span><span class="s1">&#39;year&#39;</span><span class="p">])</span>
-
-<span class="n">pop1</span> <span class="o">=</span> <span class="n">pop</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">codes</span><span class="p">,</span> <span class="n">on</span> <span class="o">=</span> <span class="s1">&#39;numeric code&#39;</span><span class="p">,</span> <span class="n">how</span> <span class="o">=</span> <span class="s1">&#39;left&#39;</span><span class="p">)</span>
-<span class="n">pop1</span> <span class="o">=</span> <span class="n">pop1</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;entity_y&#39;</span><span class="p">,</span> <span class="s1">&#39;numeric code&#39;</span><span class="p">])</span>
-<span class="n">pop1</span> <span class="o">=</span> <span class="n">pop1</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;entity_x&#39;</span><span class="p">:</span><span class="s1">&#39;entity&#39;</span><span class="p">})</span>
-
-<span class="c1"># read gdp data</span>
-<span class="n">gdp</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;GDP_country.csv&#39;</span><span class="p">,</span> <span class="n">header</span> <span class="o">=</span> <span class="mi">2</span><span class="p">)</span>
-<span class="n">gdp</span> <span class="o">=</span> <span class="n">gdp</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Indicator Name&#39;</span><span class="p">,</span> <span class="s1">&#39;Indicator Code&#39;</span><span class="p">])</span>
-<span class="n">gdp</span> <span class="o">=</span> <span class="n">gdp</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="mi">32</span><span class="p">,</span> <span class="o">-</span><span class="mi">11</span><span class="p">))]</span>
-<span class="n">gdp</span> <span class="o">=</span> <span class="n">gdp</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;Country Name&#39;</span><span class="p">:</span><span class="s1">&#39;entity&#39;</span><span class="p">})</span>
-<span class="n">gdp</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">melt</span><span class="p">(</span><span class="n">gdp</span><span class="p">,</span> <span class="n">id_vars</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;entity&#39;</span><span class="p">,</span> <span class="s1">&#39;Country Code&#39;</span><span class="p">])</span>
-<span class="n">gdp</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;entity&#39;</span><span class="p">,</span> <span class="s1">&#39;country code&#39;</span><span class="p">,</span> <span class="s1">&#39;year&#39;</span><span class="p">,</span> <span class="s1">&#39;gdp&#39;</span><span class="p">]</span>
-<span class="n">gdp</span><span class="p">[</span><span class="s1">&#39;year&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">gdp</span><span class="p">[</span><span class="s1">&#39;year&#39;</span><span class="p">])</span>
-
-<span class="n">gdp1</span> <span class="o">=</span> <span class="n">gdp</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">codes</span><span class="p">,</span> <span class="n">on</span> <span class="o">=</span> <span class="s1">&#39;country code&#39;</span><span class="p">,</span> <span class="n">how</span> <span class="o">=</span> <span class="s1">&#39;left&#39;</span><span class="p">)</span>
-<span class="n">gdp1</span> <span class="o">=</span> <span class="n">gdp1</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;numeric code&#39;</span><span class="p">])</span>
-<span class="n">gdp1</span> <span class="o">=</span> <span class="n">gdp1</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;entity_y&#39;</span><span class="p">,</span> <span class="s1">&#39;numeric code&#39;</span><span class="p">])</span>
-<span class="n">gdp1</span> <span class="o">=</span> <span class="n">gdp1</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;entity_x&#39;</span><span class="p">:</span><span class="s1">&#39;entity&#39;</span><span class="p">})</span>
-
-<span class="c1"># merge data</span>
-
-<span class="c1"># merge deaths and population</span>
-<span class="n">death_pop</span> <span class="o">=</span> <span class="n">deaths</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">pop1</span><span class="p">,</span> <span class="n">on</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;country code&#39;</span><span class="p">,</span> <span class="s1">&#39;year&#39;</span><span class="p">],</span> <span class="n">how</span> <span class="o">=</span> <span class="s1">&#39;left&#39;</span><span class="p">)</span>
-<span class="n">death_pop</span> <span class="o">=</span> <span class="n">death_pop</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;entity_y&#39;</span><span class="p">])</span>
-<span class="n">death_pop</span> <span class="o">=</span> <span class="n">death_pop</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;entity_x&#39;</span><span class="p">:</span><span class="s1">&#39;entity&#39;</span><span class="p">})</span>
-<span class="n">death_pop</span> <span class="o">=</span> <span class="n">death_pop</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;population&#39;</span><span class="p">])</span>
-
-<span class="c1"># merge with GDP</span>
-<span class="n">df2</span> <span class="o">=</span> <span class="n">death_pop</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">gdp1</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;year&#39;</span><span class="p">,</span> <span class="s1">&#39;country code&#39;</span><span class="p">,</span> <span class="s1">&#39;continent&#39;</span><span class="p">],</span> <span class="n">how</span> <span class="o">=</span> <span class="s1">&#39;left&#39;</span><span class="p">)</span>
-<span class="n">df2</span> <span class="o">=</span> <span class="n">df2</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;entity_y&#39;</span><span class="p">])</span>
-<span class="n">df2</span> <span class="o">=</span> <span class="n">df2</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;entity_x&#39;</span><span class="p">:</span><span class="s1">&#39;entity&#39;</span><span class="p">})</span>
-<span class="n">df2</span> <span class="o">=</span> <span class="n">df2</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;country code&#39;</span><span class="p">])</span>
-<span class="n">df2</span><span class="p">[</span><span class="s1">&#39;gdp&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df2</span><span class="p">[</span><span class="s1">&#39;gdp&#39;</span><span class="p">]</span><span class="o">/</span><span class="mi">1000000</span>
-</code></pre></div>
-
-
-<p>Finally, the code to create the interactive plot with the slider is as simple as:</p>
-<div class="highlight"><pre><span></span><code><span class="n">fig</span> <span class="o">=</span> <span class="n">px</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">df2</span><span class="p">,</span> 
-                 <span class="n">x</span><span class="o">=</span><span class="s2">&quot;gdp&quot;</span><span class="p">,</span>
-                 <span class="n">y</span><span class="o">=</span><span class="s2">&quot;deaths&quot;</span><span class="p">,</span>
-                 <span class="n">animation_frame</span><span class="o">=</span><span class="s2">&quot;year&quot;</span><span class="p">,</span> 
-                 <span class="n">animation_group</span><span class="o">=</span><span class="s2">&quot;entity&quot;</span><span class="p">,</span>
-                 <span class="n">size</span><span class="o">=</span><span class="s2">&quot;population&quot;</span><span class="p">,</span> 
-                 <span class="n">color</span><span class="o">=</span><span class="s2">&quot;continent&quot;</span><span class="p">,</span>
-                 <span class="n">hover_name</span><span class="o">=</span><span class="s2">&quot;entity&quot;</span><span class="p">,</span> 
-                 <span class="n">size_max</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span>
-                <span class="n">labels</span><span class="o">=</span><span class="p">{</span>
-                     <span class="s2">&quot;gdp&quot;</span><span class="p">:</span> <span class="s2">&quot;gdp in $1,000,000&quot;</span><span class="p">,</span>
-                     <span class="s2">&quot;deaths&quot;</span><span class="p">:</span> <span class="s2">&quot;deaths per 100,000 people&quot;</span>
-                 <span class="p">},</span>
-                <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Deaths by Malaria vs. GDP&quot;</span><span class="p">)</span>
-<span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-</code></pre></div>
-
-
-<h2>Boxplot<a name="section3"></a></h2>
-<p>Then I chose <code>seaborn</code>, as it produce simple and clear visulizations. For example, by the plot below we can see that the number of incidence of malaria has a clear decreasing trend over years.</p>
-<p>After reading in the data on the number of incidence of malaria, I named it <code>inc</code>.</p>
-<div class="highlight"><pre><span></span><code><span class="n">ax</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">boxplot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s2">&quot;Year&quot;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s2">&quot;Incidence&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">inc</span><span class="p">)</span>
-</code></pre></div>
-
-
-<p><img alt="Hi" src="/images/box.png"></p>
-<p>We can zoom in by setting the limit of y-axis to take a closer look at the difference between the years</p>
-<div class="highlight"><pre><span></span><code><span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s2">&quot;figure.figsize&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mf">7.50</span><span class="p">,</span> <span class="mf">7.50</span><span class="p">]</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s2">&quot;figure.autolayout&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
-<span class="n">ax</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">boxplot</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s2">&quot;Year&quot;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s2">&quot;Incidence&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">inc</span><span class="p">)</span>
-<span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">700</span><span class="p">)</span>
-
-<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Incidence of Malaria(per 1,000 people) at risk by year&quot;</span><span class="p">)</span>
-
-<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-</code></pre></div>
-
-
-<p><img alt="Hi" src="/images/box_zoomed.png"></p>                </article>
-            </aside><!-- /#featured -->
-                <section id="content" class="body">
-                    <h1>Other articles</h1>
-                    <hr />
-                    <ol id="posts-list" class="hfeed">
+<p>Because the data is time series data, therefore it's always useful to take a …</p>
+                <a class="readmore" href="/homework-3.html">read more</a>
+                </div><!-- /.entry-content -->
+            </article></li>
 
             <li><article class="hentry">
                 <header>
