@@ -20,7 +20,205 @@
 
             <aside id="featured" class="body">
                 <article>
-                    <h1 class="entry-title"><a href="/homework-4.html">Homework 4</a></h1>
+                    <h1 class="entry-title"><a href="/homework-5.html">Homework 5</a></h1>
+<footer class="post-info">
+        <abbr class="published" title="2021-11-14T00:00:00-05:00">
+                Published: Sun 14 November 2021
+        </abbr>
+
+        <address class="vcard author">
+                By                         <a class="url fn" href="/author/xige-huang.html">Xige Huang</a>
+        </address>
+<p>In <a href="/category/misc.html">misc</a>.</p>
+
+</footer><!-- /.post-info --><h1>Dive into Deep Learning</h1>
+<p>Using <a href="https://github.com/cliburn/bios-823-2021/blob/main/homework/assignments.md">https://github.com/cliburn/bios-823-2021/blob/main/homework/assignments.md</a></p>
+<p>The goal of this homework is to train a neural network to classify beetles, cockroaches and dragonflies, using images from <a href="https://www.insectimages.org/index.cfm">https://www.insectimages.org/index.cfm</a>.</p>
+<p>First we need to load the packages we need, <code>tensorflow</code> and <code>tensorflow_keras</code>.</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+<span class="kn">import</span> <span class="nn">tensorflow.keras</span> <span class="k">as</span> <span class="nn">keras</span>
+</code></pre></div>
+
+
+<p>function to read in images,</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">tensorflow.keras.preprocessing</span> <span class="kn">import</span> <span class="n">image_dataset_from_directory</span>
+</code></pre></div>
+
+
+<p>functions to build model,</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">keras.models</span> <span class="kn">import</span> <span class="n">Sequential</span>
+<span class="kn">from</span> <span class="nn">keras.layers</span> <span class="kn">import</span> <span class="n">Dense</span><span class="p">,</span> <span class="n">Conv2D</span> <span class="p">,</span> <span class="n">MaxPool2D</span> <span class="p">,</span> <span class="n">Flatten</span> <span class="p">,</span> <span class="n">Dropout</span> 
+<span class="kn">from</span> <span class="nn">tensorflow.keras.optimizers</span> <span class="kn">import</span> <span class="n">Adam</span><span class="p">,</span> <span class="n">SGD</span><span class="p">,</span> <span class="n">RMSprop</span>
+<span class="kn">from</span> <span class="nn">tensorflow.keras</span> <span class="kn">import</span> <span class="n">layers</span>
+</code></pre></div>
+
+
+<p>and <code>SHapley Additive exPlanations</code> to explain the model</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">shap</span>
+</code></pre></div>
+
+
+<p>and also <code>numpy</code> and <code>pyplot</code>.</p>
+<h2>Read images</h2>
+<p>The function <code>image_dataset_from_directory</code> in keras is especially convinient reading images and labels from the subdirectories.</p>
+<div class="highlight"><pre><span></span><code><span class="n">img_width</span> <span class="o">=</span> <span class="mi">256</span>
+<span class="n">img_height</span> <span class="o">=</span> <span class="mi">256</span>
+<span class="n">batchSize</span> <span class="o">=</span> <span class="mi">32</span>
+</code></pre></div>
+
+
+<p>There is 1019 files and 180 files in the training and testing set, respectively</p>
+<div class="highlight"><pre><span></span><code><span class="n">train_ds</span> <span class="o">=</span> <span class="n">image_dataset_from_directory</span><span class="p">(</span>
+    <span class="n">directory</span><span class="o">=</span><span class="s1">&#39;insects/train/&#39;</span><span class="p">,</span>
+    <span class="n">label_mode</span><span class="o">=</span><span class="s1">&#39;categorical&#39;</span><span class="p">,</span>
+    <span class="n">batch_size</span><span class="o">=</span> <span class="n">batchSize</span><span class="p">,</span>
+    <span class="n">image_size</span><span class="o">=</span><span class="p">(</span><span class="n">img_width</span><span class="p">,</span> <span class="n">img_height</span><span class="p">))</span>
+<span class="n">test_ds</span> <span class="o">=</span> <span class="n">image_dataset_from_directory</span><span class="p">(</span>
+    <span class="n">directory</span><span class="o">=</span><span class="s1">&#39;insects/test/&#39;</span><span class="p">,</span>
+    <span class="n">label_mode</span><span class="o">=</span><span class="s1">&#39;categorical&#39;</span><span class="p">,</span>
+    <span class="n">batch_size</span><span class="o">=</span> <span class="n">batchSize</span><span class="p">,</span>
+    <span class="n">image_size</span><span class="o">=</span><span class="p">(</span><span class="n">img_width</span><span class="p">,</span> <span class="n">img_height</span><span class="p">))</span>
+</code></pre></div>
+
+
+<p>We can see the class names using <code>.class_names</code>, which are beetles, dragonflies, and cockroaches.</p>
+<div class="highlight"><pre><span></span><code><span class="n">class_names</span> <span class="o">=</span> <span class="n">train_ds</span><span class="o">.</span><span class="n">class_names</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">class_names</span><span class="p">)</span>
+</code></pre></div>
+
+
+<h2>Data augmentation</h2>
+<p>Then we can define a data augmentation function, which generate random transformations (horizontal flipping or rotations) of the images. The purpose of data augmentation is to artificially introduce sample diversity. Since the training set we have is of fairly large size (1019 files), this step can be skipped.</p>
+<p>One thing to note here is that data augmentation is inactive at test time, so the input samples will only be augmented during model fitting, but not during prediction of evaluation.</p>
+<div class="highlight"><pre><span></span><code><span class="n">data_augmentation</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">Sequential</span><span class="p">(</span>
+    <span class="p">[</span>
+        <span class="n">layers</span><span class="o">.</span><span class="n">RandomFlip</span><span class="p">(</span><span class="s2">&quot;horizontal&quot;</span><span class="p">),</span>
+        <span class="n">layers</span><span class="o">.</span><span class="n">RandomRotation</span><span class="p">(</span><span class="mf">0.1</span><span class="p">),</span>
+    <span class="p">]</span>
+<span class="p">)</span>
+</code></pre></div>
+
+
+<h2>Model spcification (Convolutional Neural Network)</h2>
+<p>After the <code>data_augmentation processor</code>, we include <code>Rescaling</code> layer to standardize the data into values of range(0, 1), dividing by 255 because RGB values have range [0, 255].</p>
+<p>Here I dropout regularization to prevent overfitting (i.e., to reduce number of filters/layers), where the dropout ignores a random fraction of units in a layer while setting their weights to zero.
+I'm not an expert of neural networks, but I've read that the ideal rate for the input and hidden layers is 0.4, and the ideal rate for the output layer is 0.2 so I use those numbers in the model specification.</p>
+<div class="highlight"><pre><span></span><code><span class="n">model</span> <span class="o">=</span> <span class="n">Sequential</span><span class="p">([</span>
+  <span class="n">data_augmentation</span><span class="p">,</span>
+  <span class="n">layers</span><span class="o">.</span><span class="n">Rescaling</span><span class="p">(</span><span class="mf">1.</span><span class="o">/</span><span class="mi">255</span><span class="p">,</span> <span class="n">input_shape</span><span class="o">=</span><span class="p">(</span><span class="n">img_height</span><span class="p">,</span> <span class="n">img_width</span><span class="p">,</span> <span class="mi">3</span><span class="p">)),</span>
+  <span class="n">layers</span><span class="o">.</span><span class="n">Conv2D</span><span class="p">(</span><span class="mi">32</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="s1">&#39;same&#39;</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">&#39;relu&#39;</span><span class="p">),</span>
+  <span class="n">layers</span><span class="o">.</span><span class="n">MaxPooling2D</span><span class="p">(),</span>
+  <span class="n">layers</span><span class="o">.</span><span class="n">Conv2D</span><span class="p">(</span><span class="mi">64</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="s1">&#39;same&#39;</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">&#39;relu&#39;</span><span class="p">),</span>
+  <span class="n">layers</span><span class="o">.</span><span class="n">MaxPooling2D</span><span class="p">(),</span>
+  <span class="n">layers</span><span class="o">.</span><span class="n">Conv2D</span><span class="p">(</span><span class="mi">128</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">padding</span><span class="o">=</span><span class="s1">&#39;same&#39;</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">&#39;relu&#39;</span><span class="p">),</span>
+  <span class="n">layers</span><span class="o">.</span><span class="n">MaxPooling2D</span><span class="p">(),</span>
+  <span class="n">layers</span><span class="o">.</span><span class="n">Dropout</span><span class="p">(</span><span class="mf">0.4</span><span class="p">),</span>
+  <span class="n">layers</span><span class="o">.</span><span class="n">Flatten</span><span class="p">(),</span>
+  <span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="mi">256</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">&#39;relu&#39;</span><span class="p">),</span>
+  <span class="n">layers</span><span class="o">.</span><span class="n">Dropout</span><span class="p">(</span><span class="mf">0.2</span><span class="p">),</span>
+  <span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">num_classes</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="s1">&#39;softmax&#39;</span><span class="p">)</span>
+<span class="p">])</span>
+</code></pre></div>
+
+
+<h2>Train the model</h2>
+<p>The training data have 3 categories so here I use <code>categorical crossentropy</code> as loss function; if there are 2 categories one could use <code>binary crossentropy</code> instead, or if 4 one could use <code>sparse categorical crossentropy</code>.</p>
+<div class="highlight"><pre><span></span><code><span class="n">epochs</span> <span class="o">=</span> <span class="mi">25</span>
+
+<span class="n">model</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">optimizer</span><span class="o">=</span><span class="s1">&#39;adam&#39;</span><span class="p">,</span>
+              <span class="n">loss</span><span class="o">=</span><span class="s1">&#39;categorical_crossentropy&#39;</span><span class="p">,</span>
+              <span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;accuracy&#39;</span><span class="p">])</span>
+
+<span class="n">history</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
+    <span class="n">train_ds</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="n">epochs</span><span class="p">,</span> <span class="n">validation_data</span><span class="o">=</span><span class="n">test_ds</span><span class="p">,</span>
+<span class="p">)</span>
+</code></pre></div>
+
+
+<p>Processing of the training looks something like
+<img alt="Hi" src="/images/output.png"></p>
+<p>Where each epoch steps through the entire dataset, and the <code>32/32</code> means that the model is stepping through each batch, where we have 32 in total (as we have batchsize to 32; 32*32 = 1024 and we have 1019 images).</p>
+<h2>Model evaluation</h2>
+<p>By running evaluation function,</p>
+<div class="highlight"><pre><span></span><code><span class="n">score</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">test_ds</span><span class="p">,</span> <span class="n">verbose</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Test loss:&#39;</span><span class="p">,</span> <span class="n">score</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Test accuracy:&#39;</span><span class="p">,</span> <span class="n">score</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+</code></pre></div>
+
+
+<p>We have:
+Test loss: 0.13097597658634186
+Test accuracy: 0.9333333373069763</p>
+<p>If we further increase the epoch numbers, the test accuracy may get even smaller.</p>
+<p>We can also test the model in classifying random images in the test set.</p>
+<p>For example, if we let the model classify a dragonfly image</p>
+<div class="highlight"><pre><span></span><code><span class="n">img</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">preprocessing</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">load_img</span><span class="p">(</span>
+    <span class="s2">&quot;insects/test/dragonflies/5364299.jpg&quot;</span><span class="p">,</span> <span class="n">target_size</span><span class="o">=</span><span class="p">(</span><span class="n">img_width</span><span class="p">,</span> <span class="n">img_height</span><span class="p">)</span>
+<span class="p">)</span>
+<span class="n">img_array</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">preprocessing</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">img_to_array</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+<span class="n">img_array</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">img_array</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>  <span class="c1"># Create batch axis</span>
+
+<span class="n">predictions</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">img_array</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span>
+    <span class="s2">&quot;This image is </span><span class="si">%.2f</span><span class="s2"> percent bettles, </span><span class="si">%.2f</span><span class="s2"> percent cockroaches, and </span><span class="si">%.2f</span><span class="s2"> percent dragonflies.&quot;</span>
+    <span class="o">%</span> <span class="p">(</span><span class="n">predictions</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="mi">100</span><span class="p">,</span> <span class="n">predictions</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="mi">100</span><span class="p">,</span> <span class="n">predictions</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span><span class="o">*</span><span class="mi">100</span><span class="p">)</span>
+<span class="p">)</span>
+</code></pre></div>
+
+
+<p>The output is:
+This image is 0.00 percent bettles, 0.00 percent cockroaches, and 100.00 percent dragonflies.</p>
+<p>If we let the model classify a beetles image</p>
+<div class="highlight"><pre><span></span><code><span class="n">img</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">preprocessing</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">load_img</span><span class="p">(</span>
+    <span class="s2">&quot;insects/test/beetles/5558585.jpg&quot;</span><span class="p">,</span> <span class="n">target_size</span><span class="o">=</span><span class="p">(</span><span class="n">img_width</span><span class="p">,</span> <span class="n">img_height</span><span class="p">)</span>
+<span class="p">)</span>
+<span class="n">img_array</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">preprocessing</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">img_to_array</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+<span class="n">img_array</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">img_array</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>  <span class="c1"># Create batch axis</span>
+
+<span class="n">predictions</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">img_array</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span>
+    <span class="s2">&quot;This image is </span><span class="si">%.2f</span><span class="s2"> percent bettles, </span><span class="si">%.2f</span><span class="s2"> percent cockroaches, and </span><span class="si">%.2f</span><span class="s2"> percent dragonflies.&quot;</span>
+    <span class="o">%</span> <span class="p">(</span><span class="n">predictions</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="mi">100</span><span class="p">,</span> <span class="n">predictions</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="mi">100</span><span class="p">,</span> <span class="n">predictions</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span><span class="o">*</span><span class="mi">100</span><span class="p">)</span>
+<span class="p">)</span>
+</code></pre></div>
+
+
+<p>yeilds:</p>
+<p>This image is 99.48 percent bettles, 0.52 percent cockroaches, and 0.00 percent dragonflies.</p>
+<p>We can also plot the accuracy and loss with respect to the number of epochs</p>
+<p><img alt="Hi" src="/images/acc_loss.png"></p>
+<p>and we can see that there is no massive overfitting of the model</p>
+<h2>Visualization using <code>shap</code></h2>
+<p>First convert the training and testing images and labels into arrays.</p>
+<div class="highlight"><pre><span></span><code><span class="n">X_train</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">train_ds</span><span class="p">],</span> <span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
+<span class="n">y_train</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">y</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">train_ds</span><span class="p">],</span> <span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
+<span class="n">X_test</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">test_ds</span><span class="p">],</span> <span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
+<span class="n">y_test</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">y</span> <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">test_ds</span><span class="p">],</span> <span class="n">axis</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
+</code></pre></div>
+
+
+<p>Then specify images to explain and plot</p>
+<div class="highlight"><pre><span></span><code><span class="n">explainer</span> <span class="o">=</span> <span class="n">shap</span><span class="o">.</span><span class="n">GradientExplainer</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">X_train</span><span class="p">)</span>
+<span class="n">e</span> <span class="o">=</span> <span class="n">explainer</span><span class="o">.</span><span class="n">shap_values</span><span class="p">(</span><span class="n">X_test</span><span class="p">[:</span><span class="mi">10</span><span class="p">])</span>
+<span class="n">shap</span><span class="o">.</span><span class="n">image_plot</span><span class="p">([</span><span class="n">e</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)],</span> <span class="n">X_test</span><span class="p">[:</span><span class="mi">3</span><span class="p">])</span>
+</code></pre></div>
+
+
+<p><img alt="Hi" src="/images/shap.png"></p>
+<p>The plot above shows the explanations for each class on the three predictions of test set. The explanations are ordered for the classes 0-3 going left to right along the rows. Anything colored in red increases the model output (the model is more confident in the classification), while everything colored blue decreases it.</p>                </article>
+            </aside><!-- /#featured -->
+                <section id="content" class="body">
+                    <h1>Other articles</h1>
+                    <hr />
+                    <ol id="posts-list" class="hfeed">
+
+            <li><article class="hentry">
+                <header>
+                    <h1><a href="/homework-4.html" rel="bookmark"
+                           title="Permalink to Homework 4">Homework 4</a></h1>
+                </header>
+
+                <div class="entry-content">
 <footer class="post-info">
         <abbr class="published" title="2021-10-23T00:00:00-04:00">
                 Published: Sat 23 October 2021
@@ -31,369 +229,12 @@
         </address>
 <p>In <a href="/category/misc.html">misc</a>.</p>
 
-</footer><!-- /.post-info --><h1>Is there life after graduation? - visualization and analysis in dashboard</h1>
+</footer><!-- /.post-info -->                <h1>Is there life after graduation? - visualization and analysis in dashboard</h1>
 <p>Data Source for this assignment: <a href="https://ncses.nsf.gov/pubs/nsf19301/data">https://ncses.nsf.gov/pubs/nsf19301/data</a></p>
-<p>I used <code>dash</code> by <code>plotly</code> to build the dashboard, as I'm becomming familiar with the plots using <code>plotly</code> so I imagine it would be more straightforward to integrate the plots into the dashboard.</p>
-<h2>Plot1</h2>
-<p>First I want to have a look of the trend of number of doctorates recipients by years; this may provide us the insight that if post doctoral plans can affect the number of people applying for doctorates degree.</p>
-<p>The dataset cleaned for plotting looks like:
-<img alt="Hi" src="/images/df1.png"></p>
-<p>The plot will look like:
-<img alt="Hi" src="/images/plot1.png"></p>
-<p>The code for a scatter plot by year</p>
-<div class="highlight"><pre><span></span><code><span class="n">px</span><span class="o">.</span><span class="n">line</span><span class="p">(</span><span class="n">df_recip</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="s1">&#39;variable&#39;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s1">&#39;value&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;Major field of study&#39;</span><span class="p">,</span>
-       <span class="n">labels</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;number of degree awarded&quot;</span><span class="p">,</span>
-               <span class="s2">&quot;variable&quot;</span><span class="p">:</span> <span class="s2">&quot;year&quot;</span><span class="p">},</span>
-        <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Number of Doctoral Degree Awarded&quot;</span><span class="p">,</span>
-        <span class="n">template</span><span class="o">=</span><span class="s1">&#39;plotly_white&#39;</span><span class="p">)</span>
-</code></pre></div>
-
-
-<p>Furthermore, we will need a dropdown menu to filter for the gender of this plot,</p>
-<div class="highlight"><pre><span></span><code><span class="n">dcc</span><span class="o">.</span><span class="n">Dropdown</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s2">&quot;gender1_dropdown&quot;</span><span class="p">,</span>
-             <span class="n">options</span><span class="o">=</span><span class="p">[{</span><span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="n">i</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="n">i</span><span class="p">}</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">df1</span><span class="p">[</span><span class="s1">&#39;Gender&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()],</span>
-             <span class="n">value</span> <span class="o">=</span> <span class="s1">&#39;Total&#39;</span><span class="p">)</span>
-</code></pre></div>
-
-
-<h2>Plot2</h2>
-<p>Next, we can take a look at the median expected salary vs. the median year to graduation (couting from the time of entering the doctorates program) by field of study. Maybe this can provides some insights on if the difficulty to gruaduate influences people's expectation regarding post-doc plans.</p>
-<p>The cleaned dataframe for plotting looks like:
-<img alt="Hi" src="/images/df2.png"></p>
-<p>I integrated the two indicators into one grouped histogram, with separated y-axis. The plot should look like:
-<img alt="Hi" src="/images/plot2.png"></p>
-<p>The code for the grouped bar plot</p>
-<div class="highlight"><pre><span></span><code><span class="n">df_expsal_study1</span> <span class="o">=</span> <span class="n">df_expsal_study</span><span class="p">[</span><span class="n">df_expsal_study</span><span class="p">[</span><span class="s1">&#39;variable&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;Male&#39;</span><span class="p">]</span>
-<span class="n">df_median_grad1</span> <span class="o">=</span> <span class="n">df_median_grad</span><span class="p">[</span><span class="n">df_median_grad</span><span class="p">[</span><span class="s1">&#39;variable&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;Male&#39;</span><span class="p">]</span>
-<span class="n">fig</span> <span class="o">=</span> <span class="n">make_subplots</span><span class="p">(</span><span class="n">specs</span><span class="o">=</span><span class="p">[[{</span><span class="s2">&quot;secondary_y&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}]])</span>
-
-<span class="n">fig</span><span class="o">.</span><span class="n">add_trace</span><span class="p">(</span>
-    <span class="n">go</span><span class="o">.</span><span class="n">Bar</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">df_expsal_study1</span><span class="p">[</span><span class="s1">&#39;Field of study&#39;</span><span class="p">],</span> 
-           <span class="n">y</span><span class="o">=</span><span class="n">df_expsal_study1</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">],</span>
-           <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;expected salary&#39;</span><span class="p">,</span>
-          <span class="n">offsetgroup</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
-          <span class="n">secondary_y</span><span class="o">=</span><span class="kc">False</span>
-<span class="p">)</span>
-<span class="n">fig</span><span class="o">.</span><span class="n">add_trace</span><span class="p">(</span>
-    <span class="n">go</span><span class="o">.</span><span class="n">Bar</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">df_median_grad1</span><span class="p">[</span><span class="s1">&#39;Field of study&#39;</span><span class="p">],</span> 
-           <span class="n">y</span><span class="o">=</span><span class="n">df_median_grad1</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">],</span>
-           <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;median year to graduation&#39;</span><span class="p">,</span>
-          <span class="n">offsetgroup</span><span class="o">=</span><span class="mi">2</span><span class="p">),</span>
-          <span class="n">secondary_y</span><span class="o">=</span><span class="kc">True</span>
-<span class="p">)</span>
-
-<span class="c1"># Add figure title</span>
-<span class="n">fig</span><span class="o">.</span><span class="n">update_layout</span><span class="p">(</span>
-    <span class="n">title_text</span><span class="o">=</span><span class="s2">&quot;Expected sal and median years to doctorates degree&quot;</span>
-<span class="p">)</span>
-
-<span class="c1"># Set x-axis title</span>
-<span class="n">fig</span><span class="o">.</span><span class="n">update_xaxes</span><span class="p">(</span><span class="n">title_text</span><span class="o">=</span><span class="s1">&#39;Field of Study&#39;</span><span class="p">)</span>
-
-<span class="c1"># Set y-axes titles</span>
-<span class="n">fig</span><span class="o">.</span><span class="n">update_yaxes</span><span class="p">(</span><span class="n">title_text</span><span class="o">=</span><span class="s2">&quot;expected salary&quot;</span><span class="p">,</span> <span class="n">secondary_y</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-<span class="n">fig</span><span class="o">.</span><span class="n">update_yaxes</span><span class="p">(</span><span class="n">title_text</span><span class="o">=</span><span class="s2">&quot;years to degree&quot;</span><span class="p">,</span> <span class="n">secondary_y</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
-
-<span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-</code></pre></div>
-
-
-<p>For this plot, we will need two dropdowns: one filters gender and the other filters the type of post doctoral plan (employment or post-doc study)</p>
-<div class="highlight"><pre><span></span><code><span class="n">dcc</span><span class="o">.</span><span class="n">Dropdown</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s2">&quot;gender2_dropdown&quot;</span><span class="p">,</span>
-             <span class="n">options</span><span class="o">=</span><span class="p">[{</span><span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="n">i</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="n">i</span><span class="p">}</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">df_median_grad</span><span class="p">[</span><span class="s1">&#39;variable&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()],</span>
-             <span class="n">value</span> <span class="o">=</span> <span class="s1">&#39;Female&#39;</span><span class="p">)</span>
-</code></pre></div>
-
-
-<div class="highlight"><pre><span></span><code><span class="n">dcc</span><span class="o">.</span><span class="n">Dropdown</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s1">&#39;type1_dropdown&#39;</span><span class="p">,</span>
-             <span class="n">options</span><span class="o">=</span><span class="p">[{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Employment&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;Employment&quot;</span><span class="p">},</span>
-             <span class="p">{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Postdoctoral study&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;Postdoctoral study&quot;</span><span class="p">}],</span>
-             <span class="n">value</span> <span class="o">=</span> <span class="s1">&#39;Employment&#39;</span><span class="p">)</span>
-</code></pre></div>
-
-
-<h2>Plot 3</h2>
-<p>Finally, we can take a look at the proportion of different post doctoral plans by field of study.
-One thing to note here is that I directly format the data in excel, instead of in pandas.
-I have valid reason to do so, hope you read this before you deduct any point for not doing work in pandas:
-the data is obviously format for display purpose in excel, therefore it would be more reasonable to convert it to the format for which I desired in excel. For example, there are footnotes for some of the cells, so direcly reading it by pandas will result 'typos' as 'othersb' where 'b' is originally a footnote. Hence, I did all data processing in excel.</p>
-<p>The original data in excel:
-<img alt="Hi" src="/images/rawexcel.png"></p>
-<p>Cleaning the data solely in pandas is too annoying and incovinient, for example the code for which I used for processing the data for the grouped bar plot looks like:</p>
-<div class="highlight"><pre><span></span><code><span class="n">df2</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span><span class="s1">&#39;postdoc_expected_sal.xlsx&#39;</span><span class="p">,</span> <span class="n">header</span> <span class="o">=</span> <span class="mi">3</span><span class="p">)</span>
-<span class="n">df2</span> <span class="o">=</span> <span class="n">df2</span><span class="o">.</span><span class="n">iloc</span><span class="p">[[</span><span class="mi">3</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">11</span><span class="p">,</span><span class="mi">12</span><span class="p">,</span><span class="mi">16</span><span class="p">,</span><span class="mi">18</span><span class="p">,</span><span class="mi">19</span><span class="p">,</span><span class="mi">21</span><span class="p">]]</span>
-<span class="n">df_expsal_emp</span> <span class="o">=</span> <span class="n">df2</span><span class="p">[[</span><span class="s1">&#39;Field of study&#39;</span><span class="p">,</span> <span class="s1">&#39;Employment&#39;</span><span class="p">,</span> <span class="s1">&#39;Unnamed: 2&#39;</span><span class="p">]]</span>
-<span class="n">df_expsal_emp</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Field of study&#39;</span><span class="p">,</span> <span class="s1">&#39;Male&#39;</span><span class="p">,</span> <span class="s1">&#39;Female&#39;</span><span class="p">]</span>
-<span class="n">df_expsal_emp</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s1">&#39;Type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Employment&#39;</span>
-<span class="n">df_expsal_emp</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">melt</span><span class="p">(</span><span class="n">df_expsal_emp</span><span class="p">,</span> <span class="n">id_vars</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Field of study&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">])</span>
-<span class="n">df_expsal_emp</span><span class="p">[</span><span class="s1">&#39;Field of study&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_expsal_emp</span><span class="p">[</span><span class="s1">&#39;Field of study&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">({</span><span class="s1">&#39;Psychology and social sciences &#39;</span><span class="p">:</span><span class="s1">&#39;Psychology and social sciences&#39;</span><span class="p">,</span> <span class="s1">&#39;Other non-S&amp;E fieldsb&#39;</span><span class="p">:</span><span class="s1">&#39;Other non-S&amp;E fields&#39;</span><span class="p">})</span>
-<span class="n">df_expsal_study</span> <span class="o">=</span> <span class="n">df2</span><span class="p">[[</span><span class="s1">&#39;Field of study&#39;</span><span class="p">,</span> <span class="s1">&#39;Postdoctoral study&#39;</span><span class="p">,</span> <span class="s1">&#39;Unnamed: 4&#39;</span><span class="p">]]</span>
-<span class="n">df_expsal_study</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Field of study&#39;</span><span class="p">,</span> <span class="s1">&#39;Male&#39;</span><span class="p">,</span> <span class="s1">&#39;Female&#39;</span><span class="p">]</span>
-<span class="n">df_expsal_study</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s1">&#39;Type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Postdoctoral study&#39;</span>
-<span class="n">df_expsal_study</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">melt</span><span class="p">(</span><span class="n">df_expsal_study</span><span class="p">,</span> <span class="n">id_vars</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Field of study&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">])</span>
-<span class="n">df_expsal_study</span><span class="p">[</span><span class="s1">&#39;Field of study&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_expsal_study</span><span class="p">[</span><span class="s1">&#39;Field of study&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">({</span><span class="s1">&#39;Psychology and social sciences &#39;</span><span class="p">:</span><span class="s1">&#39;Psychology and social sciences&#39;</span><span class="p">,</span><span class="s1">&#39;Other non-S&amp;E fieldsb&#39;</span><span class="p">:</span><span class="s1">&#39;Other non-S&amp;E fields&#39;</span><span class="p">})</span>
-<span class="n">df3</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span><span class="s1">&#39;doc_median_year.xlsx&#39;</span><span class="p">,</span> <span class="n">header</span> <span class="o">=</span> <span class="mi">3</span><span class="p">)</span>
-<span class="n">df3</span> <span class="o">=</span> <span class="n">df3</span><span class="o">.</span><span class="n">iloc</span><span class="p">[[</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">]]</span>
-<span class="n">df3</span> <span class="o">=</span> <span class="n">df3</span><span class="o">.</span><span class="n">T</span>
-<span class="n">df3</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">df3</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-<span class="n">df3</span> <span class="o">=</span> <span class="n">df3</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">2</span><span class="p">:]</span>
-<span class="n">df3</span><span class="p">[</span><span class="s1">&#39;Years since entering doctoral programe&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df3</span><span class="o">.</span><span class="n">index</span>
-<span class="n">df3</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Male&#39;</span><span class="p">,</span> <span class="s1">&#39;Female&#39;</span><span class="p">,</span><span class="s1">&#39;Field of study&#39;</span><span class="p">]</span>
-<span class="n">df3</span><span class="p">[</span><span class="s1">&#39;Field of study&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df3</span><span class="p">[</span><span class="s1">&#39;Field of study&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">({</span><span class="s1">&#39;Otherb&#39;</span><span class="p">:</span><span class="s1">&#39;Other non-S&amp;E fields&#39;</span><span class="p">,</span> <span class="s1">&#39;Life sciencesa&#39;</span><span class="p">:</span><span class="s1">&#39;Life sciences&#39;</span><span class="p">})</span>
-<span class="n">df_median_grad</span> <span class="o">=</span> <span class="n">df3</span>
-<span class="n">df_median_grad</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s1">&#39;Type&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Median Years to Graduate&#39;</span>
-<span class="n">df_median_grad</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">melt</span><span class="p">(</span><span class="n">df_median_grad</span><span class="p">,</span> <span class="n">id_vars</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Field of study&#39;</span><span class="p">,</span> <span class="s1">&#39;Type&#39;</span><span class="p">])</span>
-<span class="n">df_expsal</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">df_expsal_study</span><span class="p">,</span> <span class="n">df_expsal_emp</span><span class="p">])</span>
-</code></pre></div>
-
-
-<p>I think one important thing is that we know how to process data wisely to save time.</p>
-<p>Therefore I just read in the pre-processed data, and it looks like:
-<img alt="Hi" src="/images/df3.png"></p>
-<p>The desired pie chart should look like: 
-<img alt="Hi" src="/images/plot3.png"></p>
-<p>from code</p>
-<div class="highlight"><pre><span></span><code><span class="n">fig</span> <span class="o">=</span> <span class="n">px</span><span class="o">.</span><span class="n">pie</span><span class="p">(</span><span class="n">filter_df</span><span class="p">,</span> <span class="n">values</span> <span class="o">=</span> <span class="n">filter_df</span><span class="p">[</span><span class="s1">&#39;Value&#39;</span><span class="p">],</span> <span class="n">names</span><span class="o">=</span><span class="n">filter_df</span><span class="p">[</span><span class="s1">&#39;Category&#39;</span><span class="p">],</span>
-             <span class="n">title</span> <span class="o">=</span> <span class="s1">&#39;Post-doctoral plans by type, field, and gender&#39;</span><span class="p">)</span>
-
-<span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-</code></pre></div>
-
-
-<p>For this pie chart we will need three dropdowns: one filters gender, the second filters the type of indicator for post doctoral plan (for example, location or activity for job), and the third filters the field of study.</p>
-<div class="highlight"><pre><span></span><code><span class="n">dcc</span><span class="o">.</span><span class="n">Dropdown</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s1">&#39;gender3_dropdown&#39;</span><span class="p">,</span>
-             <span class="n">options</span><span class="o">=</span><span class="p">[{</span><span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="n">i</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="n">i</span><span class="p">}</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">df4</span><span class="p">[</span><span class="s1">&#39;Gender&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()],</span>
-             <span class="n">value</span> <span class="o">=</span> <span class="s1">&#39;Total&#39;</span><span class="p">)</span>
-
-<span class="n">dcc</span><span class="o">.</span><span class="n">Dropdown</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s1">&#39;field_dropdown&#39;</span><span class="p">,</span>
-             <span class="n">options</span><span class="o">=</span><span class="p">[{</span><span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="n">i</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="n">i</span><span class="p">}</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">df4</span><span class="p">[</span><span class="s1">&#39;Field of Study&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()],</span>
-             <span class="n">value</span> <span class="o">=</span> <span class="s1">&#39;Life sciences&#39;</span><span class="p">)</span>
-
-<span class="n">dcc</span><span class="o">.</span><span class="n">Dropdown</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s1">&#39;ind_dropdown&#39;</span><span class="p">,</span>
-             <span class="n">options</span><span class="o">=</span><span class="p">[{</span><span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="n">i</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="n">i</span><span class="p">}</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">df4</span><span class="p">[</span><span class="s1">&#39;Type&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()],</span>
-             <span class="n">value</span> <span class="o">=</span> <span class="s1">&#39;Postgraduation status&#39;</span><span class="p">)</span>
-</code></pre></div>
-
-
-<h2>Dashboard</h2>
-<p>Then I just need to integrate the plots and dropdown menus. Specifically, update of the plots by the dropdowns should be done by
-<code>@app.callback</code> following the specific output and input. Moreover, because this is not a very complicated dash app, I format the components directly by adding <code>style = {}</code> following the components, instead of using <code>css</code> formating.</p>
-<p>The complete code for the layout of the app:</p>
-<div class="highlight"><pre><span></span><code><span class="n">app</span><span class="o">.</span><span class="n">layout</span> <span class="o">=</span> <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">([</span> 
-    <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span><span class="n">children</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="n">html</span><span class="o">.</span><span class="n">H1</span><span class="p">(</span><span class="n">children</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Is there life after graduate school?&quot;</span><span class="p">],</span>
-                <span class="n">style</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;color&#39;</span><span class="p">:</span><span class="s1">&#39;#FFFFFF&#39;</span><span class="p">,</span>
-                         <span class="s1">&#39;font-size&#39;</span><span class="p">:</span> <span class="s1">&#39;48px&#39;</span><span class="p">,</span>
-                         <span class="s1">&#39;font-weight&#39;</span><span class="p">:</span> <span class="s1">&#39;bold&#39;</span><span class="p">,</span>
-                         <span class="s1">&#39;text-align&#39;</span><span class="p">:</span> <span class="s1">&#39;center&#39;</span><span class="p">}),</span>
-        <span class="n">html</span><span class="o">.</span><span class="n">P</span><span class="p">(</span><span class="n">children</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Analysis of doctorate recipients and post doctoral plans&quot;</span><span class="p">],</span>
-                <span class="n">style</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;color&#39;</span><span class="p">:</span><span class="s1">&#39;#CFCFCF&#39;</span><span class="p">,</span>
-                         <span class="s1">&#39;margin&#39;</span><span class="p">:</span> <span class="s1">&#39;4px auto&#39;</span><span class="p">,</span>
-                         <span class="s1">&#39;text-align&#39;</span><span class="p">:</span> <span class="s1">&#39;center&#39;</span><span class="p">}),</span>
-    <span class="p">],</span><span class="n">style</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;background-color&#39;</span><span class="p">:</span> <span class="s1">&#39;#222222&#39;</span><span class="p">,</span> 
-               <span class="s1">&#39;height&#39;</span><span class="p">:</span> <span class="s1">&#39;288px&#39;</span><span class="p">,</span> <span class="s1">&#39;padding&#39;</span><span class="p">:</span> <span class="s1">&#39;16px 0 0 0&#39;</span><span class="p">}),</span> <span class="c1"># end of header</span>
-
-    <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span>
-            <span class="n">children</span><span class="o">=</span><span class="p">[</span>
-                <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span>
-                    <span class="n">children</span><span class="o">=</span><span class="p">[</span>
-                        <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span><span class="n">children</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Gender&quot;</span><span class="p">],</span>
-                                 <span class="n">style</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;margin-bottom&#39;</span><span class="p">:</span> <span class="s1">&#39;6px&#39;</span><span class="p">,</span>
-                                          <span class="s1">&#39;font-weight&#39;</span><span class="p">:</span> <span class="s1">&#39;bold&#39;</span><span class="p">,</span>
-                                          <span class="s1">&#39;color&#39;</span><span class="p">:</span> <span class="s1">&#39;#079A82&#39;</span><span class="p">}),</span>
-                        <span class="n">dcc</span><span class="o">.</span><span class="n">Dropdown</span><span class="p">(</span>
-                            <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;gender1_dropdown&quot;</span><span class="p">,</span>
-                            <span class="n">options</span><span class="o">=</span><span class="p">[{</span><span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="n">i</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="n">i</span><span class="p">}</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">df1</span><span class="p">[</span><span class="s1">&#39;Gender&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()],</span>
-                            <span class="n">value</span> <span class="o">=</span> <span class="s1">&#39;Total&#39;</span><span class="p">),</span>
-                    <span class="p">],</span> <span class="n">style</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;width&#39;</span><span class="p">:</span> <span class="s1">&#39;40%&#39;</span><span class="p">,</span> <span class="s1">&#39;display&#39;</span><span class="p">:</span> <span class="s1">&#39;inline-block&#39;</span><span class="p">}),</span>
-            <span class="p">],</span><span class="n">style</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;height&#39;</span><span class="p">:</span> <span class="s1">&#39;100px&#39;</span><span class="p">,</span><span class="s1">&#39;width&#39;</span><span class="p">:</span> <span class="s1">&#39;912px&#39;</span><span class="p">,</span>
-                       <span class="s1">&#39;display&#39;</span><span class="p">:</span><span class="s1">&#39;flex&#39;</span><span class="p">,</span> 
-                       <span class="s1">&#39;justify-content&#39;</span><span class="p">:</span> <span class="s1">&#39;space-evenly&#39;</span><span class="p">,</span>
-                       <span class="s1">&#39;padding-top&#39;</span><span class="p">:</span> <span class="s1">&#39;24px&#39;</span><span class="p">,</span> <span class="s1">&#39;margin&#39;</span><span class="p">:</span> <span class="s1">&#39;-80px auto 0 auto&#39;</span><span class="p">,</span>
-                       <span class="s1">&#39;background-color&#39;</span><span class="p">:</span> <span class="s1">&#39;#FFFFFF&#39;</span><span class="p">,</span>
-                       <span class="s1">&#39;box-shadow&#39;</span><span class="p">:</span> <span class="s1">&#39;0 4px 6px 0 rgba(0, 0, 0, 0.18)&#39;</span><span class="p">,}),</span> <span class="c1"># end of plot1 dropdown</span>
-
-    <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span>
-    <span class="n">children</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span>
-        <span class="n">children</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">dcc</span><span class="o">.</span><span class="n">Graph</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s1">&#39;doc_recip&#39;</span><span class="p">)],</span>
-              <span class="n">style</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;margin-bottom&#39;</span><span class="p">:</span> <span class="s1">&#39;24px&#39;</span><span class="p">,</span> <span class="s1">&#39;box-shadow&#39;</span><span class="p">:</span> <span class="s1">&#39;0 4px 6px 0 rgba(0, 0, 0, 0.18)&#39;</span><span class="p">})</span>
-    <span class="p">]</span>
-             <span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;margin-right&#39;</span><span class="p">:</span> <span class="s1">&#39;auto&#39;</span><span class="p">,</span><span class="s1">&#39;margin-left&#39;</span><span class="p">:</span> <span class="s1">&#39;auto&#39;</span><span class="p">,</span>
-              <span class="s1">&#39;max-width&#39;</span><span class="p">:</span> <span class="s1">&#39;1024px&#39;</span><span class="p">,</span><span class="s1">&#39;padding-right&#39;</span><span class="p">:</span> <span class="s1">&#39;10px&#39;</span><span class="p">,</span>
-              <span class="s1">&#39;padding-left&#39;</span><span class="p">:</span> <span class="s1">&#39;10px&#39;</span><span class="p">,</span> <span class="s1">&#39;margin-top&#39;</span><span class="p">:</span> <span class="s1">&#39;32px&#39;</span><span class="p">}),</span> <span class="c1"># end of plot1</span>
-
-    <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span>
-            <span class="n">children</span><span class="o">=</span><span class="p">[</span>
-                 <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span>
-                    <span class="n">children</span><span class="o">=</span><span class="p">[</span>
-                        <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span><span class="n">children</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Gender&quot;</span><span class="p">],</span> <span class="n">style</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;margin-bottom&#39;</span><span class="p">:</span> <span class="s1">&#39;6px&#39;</span><span class="p">,</span>
-                                                               <span class="s1">&#39;font-weight&#39;</span><span class="p">:</span> <span class="s1">&#39;bold&#39;</span><span class="p">,</span> <span class="s1">&#39;color&#39;</span><span class="p">:</span> <span class="s1">&#39;#079A82&#39;</span><span class="p">}),</span>
-                        <span class="n">dcc</span><span class="o">.</span><span class="n">Dropdown</span><span class="p">(</span>
-                            <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;gender2_dropdown&quot;</span><span class="p">,</span>
-                            <span class="n">options</span><span class="o">=</span><span class="p">[{</span><span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="n">i</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="n">i</span><span class="p">}</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">df_median_grad</span><span class="p">[</span><span class="s1">&#39;variable&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()],</span>
-                            <span class="n">value</span> <span class="o">=</span> <span class="s1">&#39;Female&#39;</span><span class="p">)</span>
-                    <span class="p">],</span> <span class="n">style</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;width&#39;</span><span class="p">:</span> <span class="s1">&#39;30%&#39;</span><span class="p">,</span> <span class="s1">&#39;float&#39;</span><span class="p">:</span> <span class="s1">&#39;center&#39;</span><span class="p">}),</span>
-                <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span>
-                    <span class="n">children</span><span class="o">=</span><span class="p">[</span>
-                        <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span><span class="n">children</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Type of post-doc plan&quot;</span><span class="p">],</span> <span class="n">style</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;margin-bottom&#39;</span><span class="p">:</span> <span class="s1">&#39;6px&#39;</span><span class="p">,</span>
-                                                               <span class="s1">&#39;font-weight&#39;</span><span class="p">:</span> <span class="s1">&#39;bold&#39;</span><span class="p">,</span> <span class="s1">&#39;color&#39;</span><span class="p">:</span> <span class="s1">&#39;#079A82&#39;</span><span class="p">}),</span>
-                        <span class="n">dcc</span><span class="o">.</span><span class="n">Dropdown</span><span class="p">(</span>
-                            <span class="nb">id</span><span class="o">=</span><span class="s1">&#39;type1_dropdown&#39;</span><span class="p">,</span> 
-                            <span class="n">options</span><span class="o">=</span><span class="p">[{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Employment&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;Employment&quot;</span><span class="p">},</span>
-                                     <span class="p">{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Postdoctoral study&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;Postdoctoral study&quot;</span><span class="p">}],</span>
-                            <span class="n">value</span> <span class="o">=</span> <span class="s1">&#39;Employment&#39;</span><span class="p">)</span>
-                    <span class="p">],</span> <span class="n">style</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;width&#39;</span><span class="p">:</span> <span class="s1">&#39;30%&#39;</span><span class="p">,</span> <span class="s1">&#39;display&#39;</span><span class="p">:</span> <span class="s1">&#39;inline-block&#39;</span><span class="p">}),</span>
-
-
-            <span class="p">],</span><span class="n">style</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;height&#39;</span><span class="p">:</span> <span class="s1">&#39;100px&#39;</span><span class="p">,</span><span class="s1">&#39;width&#39;</span><span class="p">:</span> <span class="s1">&#39;912px&#39;</span><span class="p">,</span>
-                       <span class="s1">&#39;display&#39;</span><span class="p">:</span><span class="s1">&#39;flex&#39;</span><span class="p">,</span> <span class="s1">&#39;justify-content&#39;</span><span class="p">:</span> <span class="s1">&#39;space-evenly&#39;</span><span class="p">,</span>
-                       <span class="s1">&#39;padding-top&#39;</span><span class="p">:</span> <span class="s1">&#39;24px&#39;</span><span class="p">,</span> <span class="s1">&#39;margin&#39;</span><span class="p">:</span> <span class="s1">&#39;50px auto 0 auto&#39;</span><span class="p">,</span>
-                       <span class="s1">&#39;background-color&#39;</span><span class="p">:</span> <span class="s1">&#39;#FFFFFF&#39;</span><span class="p">,</span>
-                       <span class="s1">&#39;box-shadow&#39;</span><span class="p">:</span> <span class="s1">&#39;0 4px 6px 0 rgba(0, 0, 0, 0.18)&#39;</span><span class="p">,}),</span> <span class="c1"># end of plot2 dropdown</span>
-
-    <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span>
-    <span class="n">children</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span>
-        <span class="n">children</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">dcc</span><span class="o">.</span><span class="n">Graph</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s1">&#39;year_sal&#39;</span><span class="p">)],</span>
-              <span class="n">style</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;margin-bottom&#39;</span><span class="p">:</span> <span class="s1">&#39;24px&#39;</span><span class="p">,</span> <span class="s1">&#39;box-shadow&#39;</span><span class="p">:</span> <span class="s1">&#39;0 4px 6px 0 rgba(0, 0, 0, 0.18)&#39;</span><span class="p">})</span>
-    <span class="p">]</span>
-             <span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;margin-right&#39;</span><span class="p">:</span> <span class="s1">&#39;auto&#39;</span><span class="p">,</span><span class="s1">&#39;margin-left&#39;</span><span class="p">:</span> <span class="s1">&#39;auto&#39;</span><span class="p">,</span>
-              <span class="s1">&#39;max-width&#39;</span><span class="p">:</span> <span class="s1">&#39;1024px&#39;</span><span class="p">,</span><span class="s1">&#39;padding-right&#39;</span><span class="p">:</span> <span class="s1">&#39;10px&#39;</span><span class="p">,</span>
-              <span class="s1">&#39;padding-left&#39;</span><span class="p">:</span> <span class="s1">&#39;10px&#39;</span><span class="p">,</span> <span class="s1">&#39;margin-top&#39;</span><span class="p">:</span> <span class="s1">&#39;32px&#39;</span><span class="p">}),</span> <span class="c1"># end of plot2</span>
-
-    <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span>
-            <span class="n">children</span><span class="o">=</span><span class="p">[</span>
-                <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span>
-                    <span class="n">children</span><span class="o">=</span><span class="p">[</span>
-                        <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span><span class="n">children</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Gender&quot;</span><span class="p">],</span> <span class="n">style</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;margin-bottom&#39;</span><span class="p">:</span> <span class="s1">&#39;6px&#39;</span><span class="p">,</span>
-                                                               <span class="s1">&#39;font-weight&#39;</span><span class="p">:</span> <span class="s1">&#39;bold&#39;</span><span class="p">,</span> <span class="s1">&#39;color&#39;</span><span class="p">:</span> <span class="s1">&#39;#079A82&#39;</span><span class="p">}),</span>
-                        <span class="n">dcc</span><span class="o">.</span><span class="n">Dropdown</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s1">&#39;gender3_dropdown&#39;</span><span class="p">,</span> 
-                                     <span class="n">options</span><span class="o">=</span><span class="p">[{</span><span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="n">i</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="n">i</span><span class="p">}</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">df4</span><span class="p">[</span><span class="s1">&#39;Gender&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()],</span>
-                                     <span class="n">value</span> <span class="o">=</span> <span class="s1">&#39;Total&#39;</span><span class="p">)</span>
-                    <span class="p">],</span> <span class="n">style</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;width&#39;</span><span class="p">:</span> <span class="s1">&#39;30%&#39;</span><span class="p">,</span> <span class="s1">&#39;float&#39;</span><span class="p">:</span> <span class="s1">&#39;center&#39;</span><span class="p">}),</span>
-                <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span>
-                    <span class="n">children</span><span class="o">=</span><span class="p">[</span>
-                        <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span><span class="n">children</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Field of study&quot;</span><span class="p">],</span> 
-                                 <span class="n">style</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;margin-bottom&#39;</span><span class="p">:</span> <span class="s1">&#39;6px&#39;</span><span class="p">,</span> <span class="s1">&#39;font-weight&#39;</span><span class="p">:</span> <span class="s1">&#39;bold&#39;</span><span class="p">,</span> <span class="s1">&#39;color&#39;</span><span class="p">:</span> <span class="s1">&#39;#079A82&#39;</span><span class="p">}),</span>
-                        <span class="n">dcc</span><span class="o">.</span><span class="n">Dropdown</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s1">&#39;field_dropdown&#39;</span><span class="p">,</span> 
-                                     <span class="n">options</span><span class="o">=</span><span class="p">[{</span><span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="n">i</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="n">i</span><span class="p">}</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">df4</span><span class="p">[</span><span class="s1">&#39;Field of Study&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()],</span>
-                                     <span class="n">value</span> <span class="o">=</span> <span class="s1">&#39;Life sciences&#39;</span><span class="p">)</span>
-                    <span class="p">],</span> <span class="n">style</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;width&#39;</span><span class="p">:</span> <span class="s1">&#39;30%&#39;</span><span class="p">,</span> <span class="s1">&#39;display&#39;</span><span class="p">:</span> <span class="s1">&#39;inline-block&#39;</span><span class="p">}),</span>
-
-                <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span>
-                    <span class="n">children</span><span class="o">=</span><span class="p">[</span>
-                        <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span><span class="n">children</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Indicator of postdoctoral plan&quot;</span><span class="p">],</span> 
-                                 <span class="n">style</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;margin-bottom&#39;</span><span class="p">:</span> <span class="s1">&#39;6px&#39;</span><span class="p">,</span> <span class="s1">&#39;font-weight&#39;</span><span class="p">:</span> <span class="s1">&#39;bold&#39;</span><span class="p">,</span> <span class="s1">&#39;color&#39;</span><span class="p">:</span> <span class="s1">&#39;#079A82&#39;</span><span class="p">}),</span>
-                        <span class="n">dcc</span><span class="o">.</span><span class="n">Dropdown</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s1">&#39;ind_dropdown&#39;</span><span class="p">,</span> 
-                                     <span class="n">options</span><span class="o">=</span><span class="p">[{</span><span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="n">i</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">:</span> <span class="n">i</span><span class="p">}</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">df4</span><span class="p">[</span><span class="s1">&#39;Type&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">unique</span><span class="p">()],</span>
-                                     <span class="n">value</span> <span class="o">=</span> <span class="s1">&#39;Postgraduation status&#39;</span><span class="p">)</span>
-                    <span class="p">],</span> <span class="n">style</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;width&#39;</span><span class="p">:</span> <span class="s1">&#39;30%&#39;</span><span class="p">,</span> <span class="s1">&#39;display&#39;</span><span class="p">:</span> <span class="s1">&#39;inline-block&#39;</span><span class="p">}),</span>
-
-            <span class="p">],</span><span class="n">style</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;height&#39;</span><span class="p">:</span> <span class="s1">&#39;100px&#39;</span><span class="p">,</span><span class="s1">&#39;width&#39;</span><span class="p">:</span> <span class="s1">&#39;912px&#39;</span><span class="p">,</span>
-                       <span class="s1">&#39;display&#39;</span><span class="p">:</span><span class="s1">&#39;flex&#39;</span><span class="p">,</span> <span class="s1">&#39;justify-content&#39;</span><span class="p">:</span> <span class="s1">&#39;space-evenly&#39;</span><span class="p">,</span>
-                       <span class="s1">&#39;padding-top&#39;</span><span class="p">:</span> <span class="s1">&#39;24px&#39;</span><span class="p">,</span> <span class="s1">&#39;margin&#39;</span><span class="p">:</span> <span class="s1">&#39;50px auto 0 auto&#39;</span><span class="p">,</span>
-                       <span class="s1">&#39;background-color&#39;</span><span class="p">:</span> <span class="s1">&#39;#FFFFFF&#39;</span><span class="p">,</span>
-                       <span class="s1">&#39;box-shadow&#39;</span><span class="p">:</span> <span class="s1">&#39;0 4px 6px 0 rgba(0, 0, 0, 0.18)&#39;</span><span class="p">,}),</span> <span class="c1"># end of plot3 dropdown</span>
-
-    <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span>
-    <span class="n">children</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="n">html</span><span class="o">.</span><span class="n">Div</span><span class="p">(</span>
-        <span class="n">children</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">dcc</span><span class="o">.</span><span class="n">Graph</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s1">&#39;post_plan&#39;</span><span class="p">)],</span>
-              <span class="n">style</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;margin-bottom&#39;</span><span class="p">:</span> <span class="s1">&#39;24px&#39;</span><span class="p">,</span> <span class="s1">&#39;box-shadow&#39;</span><span class="p">:</span> <span class="s1">&#39;0 4px 6px 0 rgba(0, 0, 0, 0.18)&#39;</span><span class="p">})</span>
-    <span class="p">],</span> <span class="n">style</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;margin-right&#39;</span><span class="p">:</span> <span class="s1">&#39;auto&#39;</span><span class="p">,</span><span class="s1">&#39;margin-left&#39;</span><span class="p">:</span> <span class="s1">&#39;auto&#39;</span><span class="p">,</span>
-              <span class="s1">&#39;max-width&#39;</span><span class="p">:</span> <span class="s1">&#39;1024px&#39;</span><span class="p">,</span><span class="s1">&#39;padding-right&#39;</span><span class="p">:</span> <span class="s1">&#39;10px&#39;</span><span class="p">,</span>
-              <span class="s1">&#39;padding-left&#39;</span><span class="p">:</span> <span class="s1">&#39;10px&#39;</span><span class="p">,</span> <span class="s1">&#39;margin-top&#39;</span><span class="p">:</span> <span class="s1">&#39;32px&#39;</span><span class="p">}),</span> <span class="c1"># end of plot3</span>
-
-
-<span class="p">])</span>
-<span class="c1"># end of app layout</span>
-
-
-<span class="nd">@app</span><span class="o">.</span><span class="n">callback</span><span class="p">(</span>
-    <span class="n">dash</span><span class="o">.</span><span class="n">dependencies</span><span class="o">.</span><span class="n">Output</span><span class="p">(</span><span class="s1">&#39;doc_recip&#39;</span><span class="p">,</span> <span class="s1">&#39;figure&#39;</span><span class="p">),</span>
-    <span class="n">Input</span><span class="p">(</span><span class="n">component_id</span><span class="o">=</span><span class="s1">&#39;gender1_dropdown&#39;</span><span class="p">,</span> <span class="n">component_property</span><span class="o">=</span><span class="s1">&#39;value&#39;</span><span class="p">))</span>
-<span class="k">def</span> <span class="nf">plot_recip</span><span class="p">(</span><span class="n">selected_gender</span><span class="p">):</span>
-    <span class="n">filter_df</span> <span class="o">=</span> <span class="n">df1</span><span class="p">[</span><span class="n">df1</span><span class="p">[</span><span class="s1">&#39;Gender&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">selected_gender</span><span class="p">]</span>
-    <span class="n">fig</span> <span class="o">=</span> <span class="n">px</span><span class="o">.</span><span class="n">line</span><span class="p">(</span><span class="n">filter_df</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="s1">&#39;variable&#39;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s1">&#39;value&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;Major field of study&#39;</span><span class="p">,</span>
-       <span class="n">labels</span><span class="o">=</span><span class="p">{</span>
-                     <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;number of degree awarded&quot;</span><span class="p">,</span>
-                     <span class="s2">&quot;variable&quot;</span><span class="p">:</span> <span class="s2">&quot;year&quot;</span>
-                 <span class="p">},</span>
-        <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Number of Doctoral Degree Awarded&quot;</span><span class="p">,</span>
-        <span class="n">template</span><span class="o">=</span><span class="s1">&#39;plotly_white&#39;</span><span class="p">)</span>
-    <span class="n">fig</span><span class="o">.</span><span class="n">update_layout</span><span class="p">(</span><span class="n">legend</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">font</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="mi">10</span><span class="p">),</span> 
-                                  <span class="n">orientation</span><span class="o">=</span><span class="s2">&quot;h&quot;</span><span class="p">,</span>
-                                  <span class="n">yanchor</span><span class="o">=</span><span class="s2">&quot;top&quot;</span><span class="p">,</span> <span class="n">y</span><span class="o">=-</span><span class="mf">0.25</span><span class="p">,</span>
-                                  <span class="n">xanchor</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
-    <span class="k">return</span> <span class="n">fig</span>
-
-
-<span class="nd">@app</span><span class="o">.</span><span class="n">callback</span><span class="p">(</span>
-    <span class="n">dash</span><span class="o">.</span><span class="n">dependencies</span><span class="o">.</span><span class="n">Output</span><span class="p">(</span><span class="s1">&#39;year_sal&#39;</span><span class="p">,</span> <span class="s1">&#39;figure&#39;</span><span class="p">),</span>
-    <span class="n">Input</span><span class="p">(</span><span class="n">component_id</span><span class="o">=</span><span class="s1">&#39;gender2_dropdown&#39;</span><span class="p">,</span> <span class="n">component_property</span><span class="o">=</span><span class="s1">&#39;value&#39;</span><span class="p">),</span>
-    <span class="n">Input</span><span class="p">(</span><span class="n">component_id</span><span class="o">=</span><span class="s1">&#39;type1_dropdown&#39;</span><span class="p">,</span> <span class="n">component_property</span><span class="o">=</span><span class="s1">&#39;value&#39;</span><span class="p">))</span>
-
-<span class="k">def</span> <span class="nf">plot_year_sal</span><span class="p">(</span><span class="n">gender2_dropdown</span><span class="p">,</span> <span class="n">type1_dropdown</span><span class="p">):</span>
-    <span class="n">filter_year</span> <span class="o">=</span> <span class="n">df_median_grad</span><span class="p">[</span><span class="n">df_median_grad</span><span class="p">[</span><span class="s1">&#39;variable&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">gender2_dropdown</span><span class="p">]</span>
-    <span class="n">filter_expsal</span> <span class="o">=</span> <span class="n">df_expsal</span><span class="p">[(</span><span class="n">df_expsal</span><span class="p">[</span><span class="s1">&#39;variable&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">gender2_dropdown</span><span class="p">)</span><span class="o">&amp;</span><span class="p">(</span><span class="n">df_expsal</span><span class="p">[</span><span class="s1">&#39;Type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">type1_dropdown</span><span class="p">)]</span>
-
-    <span class="n">fig</span> <span class="o">=</span> <span class="n">make_subplots</span><span class="p">(</span><span class="n">specs</span><span class="o">=</span><span class="p">[[{</span><span class="s2">&quot;secondary_y&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}]])</span>
-    <span class="n">fig</span><span class="o">.</span><span class="n">add_trace</span><span class="p">(</span>
-    <span class="n">go</span><span class="o">.</span><span class="n">Bar</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">filter_expsal</span><span class="p">[</span><span class="s1">&#39;Field of study&#39;</span><span class="p">],</span> 
-           <span class="n">y</span><span class="o">=</span><span class="n">filter_expsal</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">],</span>
-           <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;median epected salary&#39;</span><span class="p">,</span>
-          <span class="n">offsetgroup</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
-          <span class="n">secondary_y</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-    <span class="n">fig</span><span class="o">.</span><span class="n">add_trace</span><span class="p">(</span>
-    <span class="n">go</span><span class="o">.</span><span class="n">Bar</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">filter_year</span><span class="p">[</span><span class="s1">&#39;Field of study&#39;</span><span class="p">],</span> 
-           <span class="n">y</span><span class="o">=</span><span class="n">filter_year</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">],</span>
-           <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;median year to degree&#39;</span><span class="p">,</span>
-          <span class="n">offsetgroup</span><span class="o">=</span><span class="mi">2</span><span class="p">),</span>
-          <span class="n">secondary_y</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
-    <span class="c1"># Add figure title</span>
-    <span class="n">fig</span><span class="o">.</span><span class="n">update_layout</span><span class="p">(</span>
-    <span class="n">title_text</span><span class="o">=</span><span class="s2">&quot;Median expected salary and median years to doctorates degree, 2017&quot;</span><span class="p">)</span>
-
-    <span class="c1"># Set x-axis title</span>
-    <span class="n">fig</span><span class="o">.</span><span class="n">update_xaxes</span><span class="p">(</span><span class="n">title_text</span><span class="o">=</span><span class="s1">&#39;Field of Study&#39;</span><span class="p">)</span>
-
-    <span class="c1"># Set y-axes titles</span>
-    <span class="n">fig</span><span class="o">.</span><span class="n">update_yaxes</span><span class="p">(</span><span class="n">title_text</span><span class="o">=</span><span class="s2">&quot;expected salary&quot;</span><span class="p">,</span> <span class="n">secondary_y</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-    <span class="n">fig</span><span class="o">.</span><span class="n">update_yaxes</span><span class="p">(</span><span class="n">title_text</span><span class="o">=</span><span class="s2">&quot;years to degree&quot;</span><span class="p">,</span> <span class="n">secondary_y</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
-    <span class="k">return</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span>
-
-<span class="nd">@app</span><span class="o">.</span><span class="n">callback</span><span class="p">(</span>
-    <span class="n">dash</span><span class="o">.</span><span class="n">dependencies</span><span class="o">.</span><span class="n">Output</span><span class="p">(</span><span class="s1">&#39;post_plan&#39;</span><span class="p">,</span> <span class="s1">&#39;figure&#39;</span><span class="p">),</span>
-    <span class="n">Input</span><span class="p">(</span><span class="n">component_id</span><span class="o">=</span><span class="s1">&#39;gender3_dropdown&#39;</span><span class="p">,</span> <span class="n">component_property</span><span class="o">=</span><span class="s1">&#39;value&#39;</span><span class="p">),</span>
-    <span class="n">Input</span><span class="p">(</span><span class="n">component_id</span><span class="o">=</span><span class="s1">&#39;ind_dropdown&#39;</span><span class="p">,</span> <span class="n">component_property</span><span class="o">=</span><span class="s1">&#39;value&#39;</span><span class="p">),</span>
-    <span class="n">Input</span><span class="p">(</span><span class="n">component_id</span><span class="o">=</span><span class="s1">&#39;field_dropdown&#39;</span><span class="p">,</span> <span class="n">component_property</span><span class="o">=</span><span class="s1">&#39;value&#39;</span><span class="p">))</span>
-
-<span class="k">def</span> <span class="nf">plot_year_sal</span><span class="p">(</span><span class="n">gender3_dropdown</span><span class="p">,</span> <span class="n">ind_dropdown</span><span class="p">,</span> <span class="n">field_dropdown</span><span class="p">):</span>
-    <span class="n">filter_df</span> <span class="o">=</span> <span class="n">df4</span><span class="p">[(</span><span class="n">df4</span><span class="p">[</span><span class="s1">&#39;Field of Study&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">field_dropdown</span><span class="p">)</span> <span class="o">&amp;</span><span class="p">(</span><span class="n">df4</span><span class="p">[</span><span class="s1">&#39;Gender&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">gender3_dropdown</span><span class="p">)</span><span class="o">&amp;</span><span class="p">(</span><span class="n">df4</span><span class="p">[</span><span class="s1">&#39;Type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">ind_dropdown</span><span class="p">)]</span>
-
-    <span class="n">fig</span> <span class="o">=</span> <span class="n">px</span><span class="o">.</span><span class="n">pie</span><span class="p">(</span><span class="n">filter_df</span><span class="p">,</span> <span class="n">values</span> <span class="o">=</span> <span class="n">filter_df</span><span class="p">[</span><span class="s1">&#39;Value&#39;</span><span class="p">],</span> <span class="n">names</span><span class="o">=</span><span class="n">filter_df</span><span class="p">[</span><span class="s1">&#39;Category&#39;</span><span class="p">],</span>
-                <span class="n">title</span> <span class="o">=</span> <span class="s1">&#39;Post-doctoral plans by type, field, and gender&#39;</span><span class="p">)</span>
-
-    <span class="k">return</span><span class="p">(</span><span class="n">fig</span><span class="p">)</span>
-</code></pre></div>
-
-
-<p>The final dashboard looks like:
-<img alt="Hi" src="/images/dash1.png">
-<img alt="Hi" src="/images/dash2.png">
-<img alt="Hi" src="/images/dash3.png"></p>                </article>
-            </aside><!-- /#featured -->
-                <section id="content" class="body">
-                    <h1>Other articles</h1>
-                    <hr />
-                    <ol id="posts-list" class="hfeed">
+<p>I used <code>dash</code> by <code>plotly</code> to build the dashboard, as I'm becomming familiar with the plots using <code>plotly</code> so I imagine it would be more straightforward to integrate …</p>
+                <a class="readmore" href="/homework-4.html">read more</a>
+                </div><!-- /.entry-content -->
+            </article></li>
 
             <li><article class="hentry">
                 <header>
